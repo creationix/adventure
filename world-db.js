@@ -1,11 +1,16 @@
 var fs = require('fs'),
     Step = require('step');
 
-function worldDB(tileSize) {
+function worldDB(filename, tileSize, saveInterval) {
   var items = [null];
   var tiles = {};
+  var lock = false,
+      dirty = false,
+      shutdown = false,
+      timeout;
 
   tileSize = tileSize || 1024;
+  saveInterval = saveInterval || 500;
 
   // Prototype for tile objects.  These are used to store a chunk of the
   // overall grid in a highly effecient buffer.
@@ -26,6 +31,7 @@ function worldDB(tileSize) {
     }
   };
 
+
   // Helper to load the tile for a particular coordinate
   // Creates the tile if it doesn't exist and requested.
   function getTile(x, y, autoCreate) {
@@ -38,7 +44,7 @@ function worldDB(tileSize) {
     var tile = column && column[ty];
     if (autoCreate && !tile) {
       tile = column[ty] = Object.create(Tile);
-      tile.initialize();
+      tile.initialize(tileSize);
     }
     return tile;
   }
@@ -51,12 +57,21 @@ function worldDB(tileSize) {
 
   // Set an object to a given x,y in the world
   function set(x, y, obj) {
+    
     var tile = getTile(x, y, true);
     var index = items.indexOf(obj);
     if (index < 0) {
       index = items.push(obj) - 1;
     }
-    return tile.set(x % tileSize, y % tileSize, index);
+    var old = tile.get(x % tileSize, y % tileSize);
+    if (old != index) {
+      tile.set(x % tileSize, y % tileSize, index);
+      if (!shutdown) {
+        dirty = true;
+      }
+      checkSave();
+    }
+    return ;
   }
 
   // Takes a snapshot of the world and saves it to a new buffer
@@ -79,11 +94,11 @@ function worldDB(tileSize) {
       });
     });
     return {
-      meta: new Buffer(JSON.stringify({
+      meta: {
         s: tileSize,
         p: index,
         i: items
-      })),
+      },
       buffers: buffers
     };
   }
@@ -94,40 +109,71 @@ function worldDB(tileSize) {
         // Get a consistent snapshot of the entire db
         var data = snapshot();
 
-        // Save the metadata
-        fs.writeFile('~world.meta', data.meta, this.parallel());
-
-        // Safe the buffers
-        var stream = fs.createWriteStream('~world.grid');
+        var stream = fs.createWriteStream('~' + filename);
         stream.addListener('close', this.parallel());
+        stream.write(JSON.stringify(data.meta) + "\n", 'utf8');
         data.buffers.forEach(function (buffer) {
           stream.write(buffer);
         });
         stream.end();
 
       },
-      function unlinkOldFiles(err) {
+      function unlinkOldFile(err) {
         if (err) { callback(err); return; }
-        fs.unlink('world.grid', this.parallel());
-        fs.unlink('world.meta', this.parallel());
+        fs.unlink(filename, this);
       },
-      function moveFilesIn(err) {
-        fs.rename('~world.grid', 'world.grid', this.parallel());
-        fs.rename('~world.meta', 'world.meta', this.parallel());
+      function moveFileIn(err) {
+        fs.rename('~' + filename, filename, this);
       },
       callback
-    )
+    );
   }
 
+  function checkSave() {
+    if (lock || !dirty) return;
+    lock = true;
+    dirty = false;
+    save(function () {
+      console.error(new Date + " - Database Saved");
+      if (shutdown) {
+        if (dirty) {
+          lock = false;
+          checkSave();
+          return;
+        }
+        process.exit();
+      }
+      if (!dirty) {
+        lock = false;
+        return;
+      }
+      timeout = setTimeout(function () {
+        lock = false;
+        checkSave();
+      }, saveInterval);
+    });
+    
+  }
+  
+  function safeShutdown() {
+    console.error("SIGNAL DETECTED - saving data...");
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+    lock = false;
+    shutdown = true;
+    checkSave();
+  }
+
+  // Save the current data on SIGINT
+  process.addListener("SIGINT", safeShutdown);
+  process.addListener("SIGTERM", safeShutdown);
 
   return {
     get: get,
-    set: set,
-    save: save,
-    snapshot: snapshot,
-    items: items,
-    tiles: tiles
+    set: set
   };
 };
+
 
 module.exports = worldDB;
