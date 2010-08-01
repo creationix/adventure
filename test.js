@@ -16,24 +16,36 @@ for (var z = 0; z < 10; z++) {
   }());
 }
 
-var save = Step.fn(function () {
-  var before = new Date;
-  var snapshot = world.snapshot();
-  console.log("Snapshot took " + (new Date - before) + "ms");
+var save = Step.fn(
+  function writeNewFile() {
+    // Get a consistent snapshot of the entire db
+    var snapshot = world.snapshot();
 
-  // Save the metadata
-  fs.writeFile('world.meta', snapshot.meta, this.parallel());
+    // Save the metadata
+    fs.writeFile('world.meta.tmp', snapshot.meta, this.parallel());
 
-  // Safe the buffers
-  var stream = fs.createWriteStream('world.grids');
-  snapshot.buffers.forEach(function (buffer) {
-    stream.write(buffer);
-  });
-  stream.end();
-  stream.addListener('close', this.parallel());
-});
+    // Safe the buffers
+    var stream = fs.createWriteStream('world.grids.tmp');
+    stream.addListener('close', this.parallel());
+    snapshot.buffers.forEach(function (buffer) {
+      stream.write(buffer);
+    });
+    stream.end();
+
+  },
+  function unlinkOldFiles(err) {
+    if (err) throw err;
+    fs.unlink('world.grids', this.parallel());
+    fs.unlink('world.meta', this.parallel());
+  },
+  function moveFilesIn(err) {
+    fs.rename('world.grids.tmp', 'worlds.grids', this.parallel());
+    fs.rename('world.meta.tmp', 'meta.grids', this.parallel());
+  }
+);
 
 save(function (err, one, two) {
+  if (err) throw err;
   console.dir(arguments);
 });
 
