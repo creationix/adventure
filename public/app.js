@@ -7,7 +7,9 @@ var X = 0,
     HEIGHT,
     current = 0;
 
+var ignoreHash = false;
 onhashchange = function () {
+  if (ignoreHash) { return; }
   var hash = window.location.hash.replace(/^#/, '');
   if (!hash) {
     window.location.hash = "#" + X + "/" + Y;
@@ -15,10 +17,10 @@ onhashchange = function () {
   var parts = hash.split("/");
   X = parseInt(parts[0], 10);
   Y = parseInt(parts[1], 10);
-  WIDTH = parseInt(parts[2], 10) || WIDTH;
-  HEIGHT = parseInt(parts[3], 10) || HEIGHT;
+  wx = X * TILE_WIDTH;
+  wy = Y * TILE_HEIGHT;
 
-  loadMap();
+  loadMap(true);
 }
 
 
@@ -74,20 +76,32 @@ function generatePalette() {
   paletteDiv.innerHTML = html.join("\n");
 }
 
-function loadMap() {
+function loadMap(newData) {
   oldWIDTH = WIDTH;
   oldHEIGHT = HEIGHT;
-  WIDTH = WIDTH || Math.floor(document.width / TILE_WIDTH) + 2;
-  HEIGHT = HEIGHT || Math.floor(document.height / TILE_HEIGHT) + 3;
+  WIDTH = Math.floor(document.width / TILE_WIDTH) + 2;
+  HEIGHT = Math.floor(document.height / TILE_HEIGHT) + 3;
 
   if (oldWIDTH != WIDTH || oldHEIGHT != HEIGHT) {
     generateTiles();
   }
 
-  generatePalette();
+  if (newData) {
+    socket.send(JSON.stringify({x:X,y:Y,w:WIDTH,h:HEIGHT}));
+  } else {
+    scrollMap();
+  }
 
-  socket.send(JSON.stringify({x:X,y:Y,w:WIDTH,h:HEIGHT}));
+}
 
+function scrollMap() {
+  var ox = wx % TILE_WIDTH;
+  if (ox < 0) ox += TILE_WIDTH;
+  var oy = wy % TILE_HEIGHT;
+  if (oy < 0) oy += TILE_HEIGHT;
+
+  mapFrame.scrollLeft = ox + TILE_WIDTH;
+  mapFrame.scrollTop = oy + TILE_HEIGHT;
 }
 
 
@@ -104,6 +118,7 @@ window.onload = function () {
   paletteDiv = get("palette");
   mainDiv = get("main");
 
+  generatePalette();
 
   mainDiv.addEventListener('click', onClick);
   mainDiv.addEventListener('keydown', onKeydown, true);
@@ -112,7 +127,10 @@ window.onload = function () {
   socket = new io.Socket(null);
   socket.connect();
   socket.on('message', onMessage);
-  socket.on('connect', loadMap);
+  socket.on('connect', function () {
+    onhashchange();
+    loadMap(true);
+  });
   socket.on('disconnect', function () {
     console.log("Reconnecting");
     socket.connect();
@@ -127,13 +145,7 @@ function onMessage(message) {
     console.log(message);
     return;
   }
-  var ox = wx % TILE_WIDTH;
-  if (ox < 0) ox += TILE_WIDTH;
-  var oy = wy % TILE_HEIGHT;
-  if (oy < 0) oy += TILE_HEIGHT;
-
-  mapFrame.scrollLeft = ox + TILE_WIDTH;
-  mapFrame.scrollTop = oy + TILE_HEIGHT;
+  scrollMap();
   Object.forEach(message, function (column, x) {
     x = parseInt(x, 10);
     Object.forEach(column, function (value, y) {
@@ -156,15 +168,22 @@ setInterval(function () {
   last = now;
   var my = (up ? -1 : 0) + (down ? 1 : 0);
   var mx = (left ? -1 : 0) + (right ? 1 : 0);
+  if (!(mx || my)) return;
   wx += mx * distance;
   wy += my * distance;
+  var OX = X, OY = Y;
   X = Math.floor(wx / TILE_WIDTH);
   Y = Math.floor(wy / TILE_HEIGHT);
-  // var match = window.location.hash.match(/[^\/]*-?[0-9]+\/-?[0-9]+(.*)/);
-  // window.location.hash = "#" + X + "/" + Y + match[1];
 
-  loadMap();
-}, 50);
+  ignoreHash = true;
+  window.location.hash = "#" + X + "/" + Y;
+  setTimeout(function () {
+    ignoreHash = false;
+  });
+
+
+  loadMap(OX != X || OY != Y);
+}, 10);
 
 
 function onKeydown(e) {
