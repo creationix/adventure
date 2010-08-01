@@ -1,4 +1,5 @@
 var world = require('./world-db')(),
+    Step = require('step'),
     fs = require('fs');
     
 // Stress test creating lots of data.
@@ -15,23 +16,25 @@ for (var z = 0; z < 10; z++) {
   }());
 }
 
-function saveSync() {
+var save = Step.fn(function () {
   var before = new Date;
   var snapshot = world.snapshot();
   console.log("Snapshot took " + (new Date - before) + "ms");
 
   // Save the metadata
-  fs.writeFile('world.meta', snapshot.meta);
+  fs.writeFile('world.meta', snapshot.meta, this.parallel());
 
   // Safe the buffers
-  var fd = fs.openSync('world.grids', 'w', 0666);
+  var stream = fs.createWriteStream('world.grids');
   snapshot.buffers.forEach(function (buffer) {
-    fs.writeSync(fd, buffer);
+    stream.write(buffer);
   });
-  fs.close(fd);
-  
-}
+  stream.end();
+  stream.addListener('close', this.parallel());
+});
 
-saveSync();
+save(function (err, one, two) {
+  console.dir(arguments);
+});
 
 
