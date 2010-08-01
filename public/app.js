@@ -13,6 +13,26 @@ function loadMap() {
       set(x, y, 0);
     }
   }
+  var req = new XMLHttpRequest();
+  req.open('GET', '/range/0/0/' + WIDTH + '/' + HEIGHT, true);
+  req.onreadystatechange = function (e) {
+    if (req.readyState == 4) {
+      if(req.status == 200) {
+        var response = JSON.parse(req.responseText);
+        response.forEach(function (column, x) {
+          column.forEach(function (index, y) {
+            set(x, y, index || 0);
+          });
+        });
+        console.log(req.responseText);
+      } else {
+        console.error("Error loading page\n");
+      }
+    }
+  };
+
+  req.send(null);
+
 }
 
 function get(id) {
@@ -31,11 +51,11 @@ window.onload = function () {
       html.push('<div class="tileHandle" id="' + x + "x" + y + '" style="top: ' + (y * TILE_HEIGHT) + 'px; left: ' + x * TILE_WIDTH + 'px"></div>');
     }
   }
-  
+
   var mapDiv = get("map");
   var paletteDiv = get("palette");
   var mainDiv = get("main");
-  
+
   mapDiv.innerHTML = html.join("\n");
   html = [];
   for (var i in imageClasses) {
@@ -52,7 +72,7 @@ window.onload = function () {
   mainDiv.addEventListener('click', onClick);
 
   loadMap();
-  
+
 };
 
 function onClick(e) {
@@ -65,11 +85,21 @@ function onClick(e) {
     e.target.className += " tileActive";
     return;
   }
-  var parts = id.split("x");
-  set(parts[0], parts[1], current);
+  if (id.indexOf('x') > 0) {
+    var parts = id.split("x");
+    save(parts[0], parts[1], current);
+  }
+}
+
+function save(x, y, value) {
+  var req = new XMLHttpRequest();
+  req.open('POST', '/set/' + x + '/' + y + '/' + value, true);
+  req.send(null);
+  set(x, y, value);
 }
 
 function set(x, y, value) {
+
   map[x][y] = value;
   var div = document.getElementById('background_' + x + "x" + y);
   div.className = "tile " + imageClasses[map[x][y]];

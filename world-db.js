@@ -26,6 +26,7 @@ function worldDB(filename, tileSize, saveInterval) {
       }
     },
     set: function set(x, y, index) {
+      console.dir({x:x,y:y,index:index});
       return this.buffer[x * tileSize + y] = index;
     },
     get: function get(x, y) {
@@ -54,7 +55,7 @@ function worldDB(filename, tileSize, saveInterval) {
   // Get an object from a given x,y in the world
   function get(x, y) {
     var tile = getTile(x, y);
-    return tile ? items[0] : items[tile.get(x % tileSize, y % tileSize)];
+    return tile ? items[tile.get(x % tileSize, y % tileSize)] : items[0];
   }
 
   // Set an object to a given x,y in the world
@@ -69,6 +70,7 @@ function worldDB(filename, tileSize, saveInterval) {
       }
     }
     var old = tile.get(x % tileSize, y % tileSize);
+    console.dir({x:x,y:y,old:old,index:index});
     if (old != index) {
       tile.set(x % tileSize, y % tileSize, index);
       if (!shutdown) {
