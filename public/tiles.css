@@ -1,0 +1,56 @@
+.tile { position: absolute; width: 100px; height: 170px; }
+.brown-block { background-image: url("tiles/Brown Block.png"); }
+.character-boy { background-image: url("tiles/Character Boy.png"); }
+.character-cat-girl { background-image: url("tiles/Character Cat Girl.png"); }
+.character-horn-girl { background-image: url("tiles/Character Horn Girl.png"); }
+.character-pink-girl { background-image: url("tiles/Character Pink Girl.png"); }
+.character-princess-girl { background-image: url("tiles/Character Princess Girl.png"); }
+.chest-closed { background-image: url("tiles/Chest Closed.png"); }
+.chest-lid { background-image: url("tiles/Chest Lid.png"); }
+.chest-open { background-image: url("tiles/Chest Open.png"); }
+.dirt-block { background-image: url("tiles/Dirt Block.png"); }
+.door-tall-closed { background-image: url("tiles/Door Tall Closed.png"); }
+.door-tall-open { background-image: url("tiles/Door Tall Open.png"); }
+.enemy-bug { background-image: url("tiles/Enemy Bug.png"); }
+.gem-blue { background-image: url("tiles/Gem Blue.png"); }
+.gem-green { background-image: url("tiles/Gem Green.png"); }
+.gem-orange { background-image: url("tiles/Gem Orange.png"); }
+.grass-block { background-image: url("tiles/Grass Block.png"); }
+.heart { background-image: url("tiles/Heart.png"); }
+.key { background-image: url("tiles/Key.png"); }
+.plain-block { background-image: url("tiles/Plain Block.png"); }
+.ramp-east { background-image: url("tiles/Ramp East.png"); }
+.ramp-north { background-image: url("tiles/Ramp North.png"); }
+.ramp-south { background-image: url("tiles/Ramp South.png"); }
+.ramp-west { background-image: url("tiles/Ramp West.png"); }
+.rock { background-image: url("tiles/Rock.png"); }
+.roof-east { background-image: url("tiles/Roof East.png"); }
+.roof-north-east { background-image: url("tiles/Roof North East.png"); }
+.roof-north-west { background-image: url("tiles/Roof North West.png"); }
+.roof-north { background-image: url("tiles/Roof North.png"); }
+.roof-south-east { background-image: url("tiles/Roof South East.png"); }
+.roof-south-west { background-image: url("tiles/Roof South West.png"); }
+.roof-south { background-image: url("tiles/Roof South.png"); }
+.roof-west { background-image: url("tiles/Roof West.png"); }
+.selector { background-image: url("tiles/Selector.png"); }
+.shadow-east { background-image: url("tiles/Shadow East.png"); }
+.shadow-north-east { background-image: url("tiles/Shadow North East.png"); }
+.shadow-north-west { background-image: url("tiles/Shadow North West.png"); }
+.shadow-north { background-image: url("tiles/Shadow North.png"); }
+.shadow-side-west { background-image: url("tiles/Shadow Side West.png"); }
+.shadow-south-east { background-image: url("tiles/Shadow South East.png"); }
+.shadow-south-west { background-image: url("tiles/Shadow South West.png"); }
+.shadow-south { background-image: url("tiles/Shadow South.png"); }
+.shadow-west { background-image: url("tiles/Shadow West.png"); }
+.speechbubble { background-image: url("tiles/SpeechBubble.png"); }
+.star { background-image: url("tiles/Star.png"); }
+.stone-block-tall { background-image: url("tiles/Stone Block Tall.png"); }
+.stone-block { background-image: url("tiles/Stone Block.png"); }
+.tree-short { background-image: url("tiles/Tree Short.png"); }
+.tree-tall { background-image: url("tiles/Tree Tall.png"); }
+.tree-ugly { background-image: url("tiles/Tree Ugly.png"); }
+.wall-block-tall { background-image: url("tiles/Wall Block Tall.png"); }
+.wall-block { background-image: url("tiles/Wall Block.png"); }
+.water-block { background-image: url("tiles/Water Block.png"); }
+.window-tall { background-image: url("tiles/Window Tall.png"); }
+.wood-block { background-image: url("tiles/Wood Block.png"); }

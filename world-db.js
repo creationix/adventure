@@ -10,7 +10,9 @@ function worldDB(filename, tileSize, saveInterval) {
       timeout;
 
   tileSize = tileSize || 1024;
-  saveInterval = saveInterval || 500;
+  // This is a development friendly settings
+  // Use something as long as you can safetly afford in a real app.
+  saveInterval = saveInterval || 1000;
 
   // Prototype for tile objects.  These are used to store a chunk of the
   // overall grid in a highly effecient buffer.
@@ -62,6 +64,9 @@ function worldDB(filename, tileSize, saveInterval) {
     var index = items.indexOf(obj);
     if (index < 0) {
       index = items.push(obj) - 1;
+      if (index > 255) {
+        throw new Error("Cannot save more then 256 unique objects in this database");
+      }
     }
     var old = tile.get(x % tileSize, y % tileSize);
     if (old != index) {
@@ -156,6 +161,8 @@ function worldDB(filename, tileSize, saveInterval) {
   }
   
   function safeShutdown() {
+    process.removeListener("SIGINT", safeShutdown);
+    process.removeListener("SIGTERM", safeShutdown);
     console.error("SIGNAL DETECTED - saving data...");
     if (timeout) {
       clearTimeout(timeout);
@@ -170,8 +177,16 @@ function worldDB(filename, tileSize, saveInterval) {
   process.addListener("SIGTERM", safeShutdown);
 
   return {
-    get: get,
-    set: set
+    get: get, // Get an item from the DB
+    set: set, // Save an item to the DB
+    save: function () { // Force a save
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+      lock = false;
+      dirty = true;
+      checkSave();
+    }
   };
 };
 
