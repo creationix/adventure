@@ -1,3 +1,6 @@
+var fs = require('fs'),
+    Step = require('step');
+
 function worldDB() {
   var items = [null];
   var tiles = {};
@@ -34,7 +37,6 @@ function worldDB() {
     }
     var tile = column && column[ty];
     if (autoCreate && !tile) {
-      // console.log("Creating new tile for %dx%d", tx, ty);
       tile = column[ty] = Object.create(Tile);
       tile.initialize();
     }
@@ -76,7 +78,6 @@ function worldDB() {
         position += clone.length;
       });
     });
-    console.log(position + " bytes");
     return {
       meta: new Buffer(JSON.stringify({
         w: tileWidth,
@@ -88,19 +89,35 @@ function worldDB() {
     };
   }
   
-  function save() {
-    var stream = fs.createWriteStream('world.grids');
-    snapshot.buffers.forEach(function (buffer) {
-      stream.write(buffer);
-    });
-    fs.writeFile('world.items', JSON.stringify(items), 'utf8', function () {
+  function save(callback) {
+    Step(
+      function writeNewFile() {
+        // Get a consistent snapshot of the entire db
+        var data = snapshot();
 
-    });
-    fs.writeFile('world.index', JSON.stringify(snapshot.index), 'utf8', function () {
+        // Save the metadata
+        fs.writeFile('~world.meta', data.meta, this.parallel());
 
-    });
-  
-    
+        // Safe the buffers
+        var stream = fs.createWriteStream('~world.grid');
+        stream.addListener('close', this.parallel());
+        data.buffers.forEach(function (buffer) {
+          stream.write(buffer);
+        });
+        stream.end();
+
+      },
+      function unlinkOldFiles(err) {
+        if (err) { callback(err); return; }
+        fs.unlink('world.grid', this.parallel());
+        fs.unlink('world.meta', this.parallel());
+      },
+      function moveFilesIn(err) {
+        fs.rename('~world.grid', 'world.grid', this.parallel());
+        fs.rename('~world.meta', 'world.meta', this.parallel());
+      },
+      callback
+    )
   }
   
 
