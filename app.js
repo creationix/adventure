@@ -9,6 +9,9 @@ var emitter = new process.EventEmitter();
 // HTTP Logic
 module.exports = Connect.createServer(
   Connect.logger(),
+  Connect.conditionalGet(),
+  Connect.cache(100000),
+  Connect.gzip(),
   Connect.staticProvider(__dirname + "/public")
 );
 
