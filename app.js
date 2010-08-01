@@ -1,8 +1,8 @@
 var Connect = require('connect'),
     worldDB = require('./world-db');
 
-var world = worldDB('world');
-var watchers = new process.EventEmitter();
+var world = worldDB('world.db', 1024, 10000);
+var listeners = [];
 
 // HTTP Logic
 module.exports = Connect.createServer(
@@ -15,7 +15,9 @@ module.exports = Connect.createServer(
       var y = parseInt(req.params.y, 10);
       var value = parseInt(req.params.value, 10);
       world.set(x, y, value);
-      watchers.emit("change", x, y, value);
+      listeners = listeners.filter(function (listener) {
+        return listener(x, y, value);
+      });
       res.writeHead(204, {});
       res.end();
     });
@@ -43,16 +45,10 @@ module.exports = Connect.createServer(
       var x2 = x1 + w;
       var y2 = y1 + h;
 
-      function handler(x, y, value) {
-        if (!(x >= x1 && x < x2 && y >= y1 && y < y2)) return;
-        watchers.removeListener("change", handler);
-        res.simpleBody(200, {
-          x: x,
-          y: y,
-          v: value
-        });
-      }
-      watchers.on("change", handler);
+      listeners.push(function (x, y, value) {
+        if (!(x >= x1 && x < x2 && y >= y1 && y < y2)) return true;
+        res.simpleBody(200, { x: x, y: y, v: value });
+      });
     });
 
   }),

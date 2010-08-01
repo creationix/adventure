@@ -24,8 +24,9 @@ function loadMap() {
             set(x, y, index || 0);
           });
         });
-        console.log(req.responseText);
+        setTimeout(longPoll, 100);
       } else {
+        setTimeout(loadMap, 1000);
         console.error("Error loading page\n");
       }
     }
@@ -33,6 +34,27 @@ function loadMap() {
 
   req.send(null);
 
+}
+
+function longPoll() {
+  console.log("Start longPoll");
+  var req = new XMLHttpRequest();
+  req.open('GET', '/watch/0/0/' + WIDTH + '/' + HEIGHT, true);
+  req.onreadystatechange = function (e) {
+    if (req.readyState == 4) {
+      if(req.status == 200) {
+        var response = JSON.parse(req.responseText);
+        console.log(response);
+        set(response.x, response.y, response.v);
+        longPoll();
+      } else {
+        setTimeout(longPoll, 500);
+        console.error("Error loading page\n");
+      }
+    }
+  };
+
+  req.send(null);
 }
 
 function get(id) {
@@ -95,7 +117,7 @@ function save(x, y, value) {
   var req = new XMLHttpRequest();
   req.open('POST', '/set/' + x + '/' + y + '/' + value, true);
   req.send(null);
-  set(x, y, value);
+  // set(x, y, value);
 }
 
 function set(x, y, value) {

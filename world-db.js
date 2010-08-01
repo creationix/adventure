@@ -1,6 +1,30 @@
 var fs = require('fs'),
     Step = require('step');
 
+// Reads from a given file descriptor at a specified position and length
+// Handles all OS level chunking for you.
+// Callback gets (err, buffer)
+function fsRead(fd, position, length, callback) {
+  var buffer = new Buffer(length),
+      offset = 0;
+
+  function readChunk() {
+    fs.read(fd, buffer, offset, length - offset, position, function (err, bytesRead) {
+      if (err) { callback(err); return; }
+
+      offset += bytesRead;
+
+      if (offset < length) {
+        readChunk();
+        return;
+      }
+      callback(null, buffer);
+    });
+  }
+  readChunk();
+}
+
+
 function worldDB(filename, tileSize, saveInterval) {
   var items = [null];
   var tiles = {};
@@ -8,6 +32,79 @@ function worldDB(filename, tileSize, saveInterval) {
       dirty = false,
       shutdown = false,
       timeout;
+
+  function load(filename, callback) {
+    console.log(filename);
+    var stream = fs.createReadStream(filename);
+    var input = "";
+    var meta;
+    stream.setEncoding('utf8');
+    stream.on('error', callback);
+    stream.on("data", function (chunk) {
+      input += chunk;
+      if (chunk.indexOf("\n") >= 0) {
+        var json = input.substr(0, input.indexOf("\n") + 1);
+        meta = JSON.parse(json);
+        var offset = Buffer.byteLength(json);
+        var tileSize = meta.s;
+        var tiles = [];
+        var counter = 0;
+        fs.open(filename, "r", 0666, function (err, fd) {
+          if (err) { callback(err); return; }
+          Object.keys(meta.p).forEach(function (x) {
+            var indexColumn = meta.p[x];
+            var column = tiles[x] = [];
+            Object.keys(indexColumn).forEach(function (y) {
+              counter++;
+              var tile = column[y] = Object.create(Tile);
+              fsRead(fd, indexColumn[y] + offset, tileSize * tileSize, function (err, buffer) {
+                if (err) { callback(err); return; }
+                tile.buffer = buffer;
+                counter--;
+                if (counter === 0) {
+                  callback(null, meta, tiles);
+                }
+              });
+            });
+          });
+          if (counter === 0) {
+            callback(null, meta, tiles);
+          }
+        });
+        stream.destroy();
+      }
+    });
+    stream.on("end", function () {
+      if (!meta) {
+        callback(new Error("Unexpected end of stream"));
+      }
+    });
+
+  }
+
+
+  lock = true;
+  load(filename, function (err, m, t) {
+    lock = false;
+    if (err) {
+      if (err.errno === process.ENOENT) {
+        console.log("Creating a new database");
+        dirty = true;
+        checkSave();
+        return;
+      }
+      throw err;
+    }
+    dirty = false;
+    if (timeout) {
+      clearTimeout(timeout);
+      timeout = null;
+    }
+    tiles = t;
+    tileSize = m.s;
+    items = m.i;
+    console.log("%s loaded", filename);
+  });
 
   tileSize = tileSize || 1024;
   // This is a development friendly settings
@@ -26,7 +123,6 @@ function worldDB(filename, tileSize, saveInterval) {
       }
     },
     set: function set(x, y, index) {
-      console.dir({x:x,y:y,index:index});
       return this.buffer[x * tileSize + y] = index;
     },
     get: function get(x, y) {
@@ -60,7 +156,7 @@ function worldDB(filename, tileSize, saveInterval) {
 
   // Set an object to a given x,y in the world
   function set(x, y, obj) {
-    
+
     var tile = getTile(x, y, true);
     var index = items.indexOf(obj);
     if (index < 0) {
@@ -70,7 +166,6 @@ function worldDB(filename, tileSize, saveInterval) {
       }
     }
     var old = tile.get(x % tileSize, y % tileSize);
-    console.dir({x:x,y:y,old:old,index:index});
     if (old != index) {
       tile.set(x % tileSize, y % tileSize, index);
       if (!shutdown) {
@@ -159,9 +254,9 @@ function worldDB(filename, tileSize, saveInterval) {
         checkSave();
       }, saveInterval);
     });
-    
+
   }
-  
+
   function safeShutdown() {
     process.removeListener("SIGINT", safeShutdown);
     process.removeListener("SIGTERM", safeShutdown);
