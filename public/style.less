@@ -1,1 +1,41 @@
 @import "tiles.css";
+
+#paletteFrame {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 140px;
+  background-color: #333;
+  overflow: auto;
+}
+#mapFrame {
+  position: absolute;
+  left: 140px;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  overflow: auto;
+  background-color: #aaa;
+}
+body {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.tile { 
+  position: absolute; 
+  margin-top: -50px; 
+  width: 100px; 
+  height: 170px;
+}
+.tileHandle {
+  position: absolute;
+  width: 100px;
+  height: 120px;
+  top: 50px;
+}
+.tileHandle:hover {
+  background: rgba(255,255,255,0.5);
+}

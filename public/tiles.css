@@ -1,4 +1,3 @@
-.tile { position: absolute; width: 100px; height: 170px; }
 .brown-block { background-image: url("tiles/Brown Block.png"); }
 .character-boy { background-image: url("tiles/Character Boy.png"); }
 .character-cat-girl { background-image: url("tiles/Character Cat Girl.png"); }
@@ -33,15 +32,6 @@
 .roof-south { background-image: url("tiles/Roof South.png"); }
 .roof-west { background-image: url("tiles/Roof West.png"); }
 .selector { background-image: url("tiles/Selector.png"); }
-.shadow-east { background-image: url("tiles/Shadow East.png"); }
-.shadow-north-east { background-image: url("tiles/Shadow North East.png"); }
-.shadow-north-west { background-image: url("tiles/Shadow North West.png"); }
-.shadow-north { background-image: url("tiles/Shadow North.png"); }
-.shadow-side-west { background-image: url("tiles/Shadow Side West.png"); }
-.shadow-south-east { background-image: url("tiles/Shadow South East.png"); }
-.shadow-south-west { background-image: url("tiles/Shadow South West.png"); }
-.shadow-south { background-image: url("tiles/Shadow South.png"); }
-.shadow-west { background-image: url("tiles/Shadow West.png"); }
 .speechbubble { background-image: url("tiles/SpeechBubble.png"); }
 .star { background-image: url("tiles/Star.png"); }
 .stone-block-tall { background-image: url("tiles/Stone Block Tall.png"); }

@@ -1,4 +1,4 @@
-var imagesClasses =
+var imageClasses =
 [ ""
 , "brown-block"
 , "character-boy"
@@ -34,15 +34,6 @@ var imagesClasses =
 , "roof-south"
 , "roof-west"
 , "selector"
-, "shadow-east"
-, "shadow-north-east"
-, "shadow-north-west"
-, "shadow-north"
-, "shadow-side-west"
-, "shadow-south-east"
-, "shadow-south-west"
-, "shadow-south"
-, "shadow-west"
 , "speechbubble"
 , "star"
 , "stone-block-tall"

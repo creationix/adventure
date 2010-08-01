@@ -1,7 +1,7 @@
 var fs = require('fs');
 
 
-var js = ['var imagesClasses =\n[ ""'];
+var js = ['var imageClasses =\n[ ""'];
 var css = fs.readdirSync('tiles').filter(function (filename) {
   if (filename[0] === '.') return;
   if (filename.indexOf('.png') < 0) return;
@@ -12,7 +12,6 @@ var css = fs.readdirSync('tiles').filter(function (filename) {
   return "." + name + ' { background-image: url("tiles/' + filename + '"); }'
 }).join("\n");
 js = js.join("\n, ") + "\n];";
-css = ".tile { position: absolute; width: 100px; height: 170px; }\n" + css;
 
 fs.writeFileSync("tiles.css", css, 'utf8');
 fs.writeFileSync("tiles.js", js, 'utf8');
