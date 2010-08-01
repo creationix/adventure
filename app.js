@@ -10,7 +10,7 @@ var emitter = new process.EventEmitter();
 module.exports = Connect.createServer(
   Connect.logger(),
   Connect.conditionalGet(),
-  Connect.cache(100000),
+  Connect.cache(),
   Connect.gzip(),
   Connect.staticProvider(__dirname + "/public")
 );

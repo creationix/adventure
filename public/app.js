@@ -7,7 +7,19 @@ var X = 0,
     HEIGHT,
     current = 0;
 
-onhashchange = loadMap;
+onhashchange = function () {
+  var hash = window.location.hash.replace(/^#/, '');
+  if (!hash) {
+    window.location.hash = "#" + X + "/" + Y;
+  }
+  var parts = hash.split("/");
+  X = parseInt(parts[0], 10);
+  Y = parseInt(parts[1], 10);
+  WIDTH = parseInt(parts[2], 10) || WIDTH;
+  HEIGHT = parseInt(parts[3], 10) || HEIGHT;
+
+  loadMap();
+}
 
 
 // Implement Object.keys for browsers that don't have it
@@ -63,17 +75,10 @@ function generatePalette() {
 }
 
 function loadMap() {
-  var hash = window.location.hash.replace(/^#/, '');
-  if (!hash) {
-    window.location.hash = "#" + X + "/" + Y;
-  }
-  var parts = hash.split("/");
-  X = parseInt(parts[0], 10);
-  Y = parseInt(parts[1], 10);
   oldWIDTH = WIDTH;
   oldHEIGHT = HEIGHT;
-  WIDTH = parseInt(parts[2], 10) || Math.floor(document.width / TILE_WIDTH) + 1;
-  HEIGHT = parseInt(parts[3], 10) || Math.floor(document.height / TILE_HEIGHT) + 1;
+  WIDTH = WIDTH || Math.floor(document.width / TILE_WIDTH) + 2;
+  HEIGHT = HEIGHT || Math.floor(document.height / TILE_HEIGHT) + 3;
 
   if (oldWIDTH != WIDTH || oldHEIGHT != HEIGHT) {
     generateTiles();
@@ -90,22 +95,28 @@ function get(id) {
   return document.getElementById(id);
 }
 
-var mapDiv, paletteDiv, mainDiv;
+var mapDiv, paletteDiv, mainDiv, mapFrame;
 
 window.onload = function () {
 
   mapDiv = get("map");
+  mapFrame = get("mapFrame");
   paletteDiv = get("palette");
   mainDiv = get("main");
 
 
   mainDiv.addEventListener('click', onClick);
-  mainDiv.addEventListener('keypress', onKeypress);
+  mainDiv.addEventListener('keydown', onKeydown, true);
+  mainDiv.addEventListener('keyup', onKeyup, true);
 
   socket = new io.Socket(null);
   socket.connect();
   socket.on('message', onMessage);
   socket.on('connect', loadMap);
+  socket.on('disconnect', function () {
+    console.log("Reconnecting");
+    socket.connect();
+  });
 
 };
 
@@ -116,6 +127,13 @@ function onMessage(message) {
     console.log(message);
     return;
   }
+  var ox = wx % TILE_WIDTH;
+  if (ox < 0) ox += TILE_WIDTH;
+  var oy = wy % TILE_HEIGHT;
+  if (oy < 0) oy += TILE_HEIGHT;
+
+  mapFrame.scrollLeft = ox + TILE_WIDTH;
+  mapFrame.scrollTop = oy + TILE_HEIGHT;
   Object.forEach(message, function (column, x) {
     x = parseInt(x, 10);
     Object.forEach(column, function (value, y) {
@@ -125,21 +143,55 @@ function onMessage(message) {
   });
 }
 
-// Pan with the wasd keys
-function onKeypress(e) {
-  switch(e.charCode) {
-    case 119: // w
-      window.location.hash = "#" + X + "/" + (Y - 1);
-      break;
-    case 97:  // a
-      window.location.hash = "#" + (X - 1) + "/" + Y;
-      break;
-    case 115: // s
-      window.location.hash = "#" + X + "/" + (Y + 1);
-      break;
-    case 100: // d
-      window.location.hash = "#" + (X + 1) + "/" + Y;
-      break;
+var up = false,
+    left = false,
+    right = false,
+    down = false;
+
+var wx = 0, wy = 0, last = new Date;
+
+setInterval(function () {
+  var now = new Date;
+  var distance = Math.floor((now - last));
+  last = now;
+  var my = (up ? -1 : 0) + (down ? 1 : 0);
+  var mx = (left ? -1 : 0) + (right ? 1 : 0);
+  wx += mx * distance;
+  wy += my * distance;
+  X = Math.floor(wx / TILE_WIDTH);
+  Y = Math.floor(wy / TILE_HEIGHT);
+  // var match = window.location.hash.match(/[^\/]*-?[0-9]+\/-?[0-9]+(.*)/);
+  // window.location.hash = "#" + X + "/" + Y + match[1];
+
+  loadMap();
+}, 50);
+
+
+function onKeydown(e) {
+  var suppress = true;
+  switch (e.keyCode) {
+    case 37: left = true; break;
+    case 38: up = true; break;
+    case 39: right = true; break;
+    case 40: down = true; break;
+    default: suppress = false; break;
+  }
+  if (suppress) {
+    e.stopPropagation();
+  }
+}
+
+function onKeyup(e) {
+  var suppress = true;
+  switch (e.keyCode) {
+    case 37: left = false; break;
+    case 38: up = false; break;
+    case 39: right = false; break;
+    case 40: down = false; break;
+    default: suppress = false; break;
+  }
+  if (suppress) {
+    e.stopPropagation();
   }
 }
 
