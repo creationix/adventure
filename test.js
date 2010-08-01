@@ -1,16 +1,16 @@
-var world = require('./world-db')(),
+var world = require('./world-db')(1024),
     Step = require('step'),
     fs = require('fs');
     
 // Stress test creating lots of data.
-for (var z = 0; z < 10; z++) {
+for (var z = 0; z < 5; z++) {
   (function () {
     var item = {num: z};
     var x = 512,
         y = 512;
-    for (var i = 0; i < 200000; i++) {
-      x += Math.floor(Math.random() * 7 - 3);
-      y += Math.floor(Math.random() * 7 - 3);
+    for (var i = 0; i < 2000000; i++) {
+      x += Math.floor(Math.random() * 5 - 2);
+      y += Math.floor(Math.random() * 5 - 2);
       world.set(x, y, item);
     }
   }());
