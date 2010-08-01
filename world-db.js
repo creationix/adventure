@@ -34,7 +34,6 @@ function worldDB(filename, tileSize, saveInterval) {
       timeout;
 
   function load(filename, callback) {
-    console.log(filename);
     var stream = fs.createReadStream(filename);
     var input = "";
     var meta;
@@ -150,8 +149,14 @@ function worldDB(filename, tileSize, saveInterval) {
 
   // Get an object from a given x,y in the world
   function get(x, y) {
+    x = parseInt(x, 10);
+    y = parseInt(y, 10);
     var tile = getTile(x, y);
-    return tile ? items[tile.get(x % tileSize, y % tileSize)] : items[0];
+    x = x % tileSize;
+    if (x < 0) x += tileSize;
+    y = y % tileSize;
+    if (y < 0) y += tileSize;
+    return tile ? items[tile.get(x, y)] : items[0];
   }
 
   // Set an object to a given x,y in the world
@@ -165,9 +170,13 @@ function worldDB(filename, tileSize, saveInterval) {
         throw new Error("Cannot save more then 256 unique objects in this database");
       }
     }
-    var old = tile.get(x % tileSize, y % tileSize);
+    x = x % tileSize;
+    if (x < 0) x += tileSize;
+    y = y % tileSize;
+    if (y < 0) y += tileSize;
+    var old = tile.get(x, y);
     if (old != index) {
-      tile.set(x % tileSize, y % tileSize, index);
+      tile.set(x, y, index);
       if (!shutdown) {
         dirty = true;
       }

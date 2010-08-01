@@ -19,13 +19,15 @@ socket.on('connection', function (client) {
   function watch(x,y,value) {
     if (x >= X && x < X + W && y >= Y && y < Y + H) {
       console.log("Sending to client");
-      client.send(JSON.stringify({x:x,y:y,v:value}));
+      var message = {};
+      message[x] = {};
+      message[x][y] = value;
+      client.send(JSON.stringify(message));
     }
   }
   emitter.on("change", watch);
   // new client is here!
   client.on('message', function (json) {
-    console.log(json);
     try {
       var message = JSON.parse(json);
     } catch (err) {
@@ -42,12 +44,16 @@ socket.on('connection', function (client) {
       Y = message.y;
       W = message.w;
       H = message.h;
-      console.log("Sending initial page");
+      var bulk = {};
       for (var x = X, x2 = X + W; x < x2; x++) {
+        var column = bulk[x] = {};
+
         for (var y = Y, y2 = Y + H; y < y2; y++) {
-          client.send(JSON.stringify({x:x,y:y,v:world.get(x,y)}));
+          column[y] = world.get(x, y);
         }
       }
+      client.send(JSON.stringify(bulk));
+
     }
   });
   client.on('disconnect', function () {

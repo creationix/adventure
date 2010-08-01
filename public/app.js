@@ -9,20 +9,32 @@ var X = 0,
 
 onhashchange = loadMap;
 
-  
 
-
-function loadMap() {
-  var hash = window.location.hash.replace(/^#/, '');
-  if (!hash) {
-    window.location.hash = "#" + X + "/" + Y;
+// Implement Object.keys for browsers that don't have it
+if (!Object.keys) {
+  Object.keys = function (obj) {
+    var keys = [];
+    for (var key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        keys.push(key);
+      }
+    }
+    return keys;
   }
-  var parts = hash.split("/");
-  X = parseInt(parts[0], 10);
-  Y = parseInt(parts[1], 10);
-  WIDTH = parseInt(parts[2], 10) || Math.floor(document.width / TILE_WIDTH) + 1;
-  HEIGHT = parseInt(parts[3], 10) || Math.floor(document.height / TILE_HEIGHT) + 1;
-  
+}
+
+// forEach for objects, very handy
+Object.forEach = function forEach(obj, callback, thisObject) {
+  var keys = Object.keys(obj);
+  var length = keys.length;
+  for (var i = 0; i < length; i++) {
+    var key = keys[i];
+    callback.call(thisObject, obj[key], key, obj);
+  }
+};
+
+
+function generateTiles() {
   var html = [];
   for (var y = 0; y < HEIGHT; y++) {
     for (var x = 0; x < WIDTH; x++) {
@@ -36,7 +48,39 @@ function loadMap() {
   }
 
   mapDiv.innerHTML = html.join("\n");
-  
+}
+
+function generatePalette() {
+  var html = [];
+  imageClasses.forEach(function (name, i) {
+    html.push('<div style="top: ' + (i * 120 + 20) + 'px; left: 20px" class="tile ' + name + '"></div>');
+  });
+  imageClasses.forEach(function (name, i) {
+    var className = (i == 0) ? "tileHandle tileActive" : "tileHandle";
+    html.push('<div id="item-' + i + '" style="top: ' + (i * 120 + 20) + 'px; left: 20px" class="' + className + '"></div>');
+  });
+  paletteDiv.innerHTML = html.join("\n");
+}
+
+function loadMap() {
+  var hash = window.location.hash.replace(/^#/, '');
+  if (!hash) {
+    window.location.hash = "#" + X + "/" + Y;
+  }
+  var parts = hash.split("/");
+  X = parseInt(parts[0], 10);
+  Y = parseInt(parts[1], 10);
+  oldWIDTH = WIDTH;
+  oldHEIGHT = HEIGHT;
+  WIDTH = parseInt(parts[2], 10) || Math.floor(document.width / TILE_WIDTH) + 1;
+  HEIGHT = parseInt(parts[3], 10) || Math.floor(document.height / TILE_HEIGHT) + 1;
+
+  if (oldWIDTH != WIDTH || oldHEIGHT != HEIGHT) {
+    generateTiles();
+  }
+
+  generatePalette();
+
   socket.send(JSON.stringify({x:X,y:Y,w:WIDTH,h:HEIGHT}));
 
 }
@@ -49,27 +93,16 @@ function get(id) {
 var mapDiv, paletteDiv, mainDiv;
 
 window.onload = function () {
-  
+
   mapDiv = get("map");
   paletteDiv = get("palette");
   mainDiv = get("main");
-  
-  var html = [];
-  for (var i in imageClasses) {
-    var name = imageClasses[i];
-    html.push('<div style="top: ' + (i * 120 + 20) + 'px; left: 20px" class="tile ' + name + '"></div>');
-  }
-  for (var i in imageClasses) {
-    var name = imageClasses[i];
-    var className = (i == 0) ? "tileHandle tileActive" : "tileHandle";
-    html.push('<div id="item-' + i + '" style="top: ' + (i * 120 + 20) + 'px; left: 20px" class="' + className + '"></div>');
-  }
-  paletteDiv.innerHTML = html.join("\n");
+
 
   mainDiv.addEventListener('click', onClick);
   mainDiv.addEventListener('keypress', onKeypress);
 
-  socket = new io.Socket(null));
+  socket = new io.Socket(null);
   socket.connect();
   socket.on('message', onMessage);
   socket.on('connect', loadMap);
@@ -83,7 +116,13 @@ function onMessage(message) {
     console.log(message);
     return;
   }
-  set(message.x, message.y, message.v);
+  Object.forEach(message, function (column, x) {
+    x = parseInt(x, 10);
+    Object.forEach(column, function (value, y) {
+      y = parseInt(y, 10);
+      set(x, y, value);
+    });
+  });
 }
 
 // Pan with the wasd keys
