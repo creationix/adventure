@@ -1,60 +1,65 @@
-var fs = require('fs'),
-    Step = require('step'),
-    Path = require('path');
+var world = require('./world-db')();
 
-function Tile(prefix, width, height) {
-  this.prefix = prefix || "";
+var items = [{}];
+
+function Tile(width, height, buffer) {
   this.width = width || 1000;
   this.height = height || 1000;
+  this.buffer = buffer || null;
 }
 Tile.prototype = {
-  initialize: function initialize(obj) {
-    var width = this.width,
-        height = this.height;
-
-    obj = obj || {};
-
-    var items = this.items = [obj];
-    var buffer = this.buffer = new Buffer(width * height);
-    for (var x = 0; x < width; x++) {
-      var base = x * width;
-      for (var y = 0; y < height; y++) {
-        buffer[base + y] = 0;
-      }
-    }
-
-  },
-  set: function set(x, y, obj) {
-    var index = this.items.indexOf(obj);
-    if (index < 0) {
-      index = this.items.push(obj) - 1;
-    }
-    this.buffer[x*this.width+y] = index;
-  },
-  get: function get(x, y) {
-    return this.index[this.buffer[x*this.width+y]];
-  },
-  save: function save(path, callback) {
-    var name = this.prefix;
-    if (path) {
-      name = Path.join(path, name);
-    }
-    fs.writeFile(name + ".grid", this.buffer, callback);
-  }
 }
 var water = {name:"Water"};
-var world = new Tile("world", 10, 10);
-world.initialize();
-for (var x = 0, w = world.width; x < w; x++) {
-  for (var y = 0, h = world.height; y < h; y++) {
-    var tile = new Tile(x + "x" + y, 1000, 1000);
+var world = {};
+
+for (var x = 0; x < 50; x++) {
+  var column = world[x] = {};
+  for (var y = 0; y < 50; y++) {
+    var tile = new Tile(1000, 1000);
     tile.initialize(water);
-    world.set(x, y, tile);
+    column[y] = tile;
   }
 }
 
+// Takes a snapshot of the world and saves it to a new buffer
+// This is a single blocking operation, but it should be fast enough
+// to not impact game play. (76ms with 100 1000x1000 tiles)
+function takeSnapshot() {
+  var buffers = [];
+  var index = {};
+  var position = 0;
+  Object.keys(world).forEach(function (x) {
+    var indexColumn = index[x] = {};
+    var column = world[x];
+    Object.keys(column).forEach(function (y) {
+      var item = column[y];
+      var clone = new Buffer(item.buffer.length);
+      item.buffer.copy(clone);
+      buffers.push(clone);
+      indexColumn[y] = {
+        p: position,
+        w: item.width,
+        h: item.height
+      };
+      position += clone.length;
+    });
+  });
+  return {
+    buffers: buffers,
+    index: index
+  };
+}
+var before = new Date;
+var snapshot = takeSnapshot();
+console.log("Snapshot took " + (new Date - before) + "ms");
 
-world.save(__dirname, function (err, filenames) {
-  if (err) throw err;
-  console.dir(filenames);
+var stream = fs.createWriteStream('world.grids');
+snapshot.buffers.forEach(function (buffer) {
+  stream.write(buffer);
+});
+fs.writeFile('world.items', JSON.stringify(items), 'utf8', function () {
+  
+});
+fs.writeFile('world.index', JSON.stringify(snapshot.index), 'utf8', function () {
+  
 });
