@@ -78,16 +78,28 @@ function worldDB() {
     });
     console.log(position + " bytes");
     return {
-      meta: {
+      meta: new Buffer(JSON.stringify({
         w: tileWidth,
         h: tileHeight,
-        i: index
-      },
+        p: index,
+        i: items
+      })),
       buffers: buffers
     };
   }
   
   function save() {
+    var stream = fs.createWriteStream('world.grids');
+    snapshot.buffers.forEach(function (buffer) {
+      stream.write(buffer);
+    });
+    fs.writeFile('world.items', JSON.stringify(items), 'utf8', function () {
+
+    });
+    fs.writeFile('world.index', JSON.stringify(snapshot.index), 'utf8', function () {
+
+    });
+  
     
   }
   
@@ -101,25 +113,5 @@ function worldDB() {
     tiles: tiles
   };
 };
-
-var world = worldDB();
-
-for (var z = 0; z < 100; z++) {
-  (function () {
-    var item = {num: z};
-    var x = 512,
-        y = 512;
-    for (var i = 0; i < 20000; i++) {
-      x += Math.floor(Math.random() * 7 - 3);
-      y += Math.floor(Math.random() * 7 - 3);
-      world.set(x, y, item);
-    }
-  }());
-}
-
-var snapshot = world.snapshot();
-console.log(snapshot.buffers.length);
-console.dir(snapshot.meta);
-
 
 module.exports = worldDB;
