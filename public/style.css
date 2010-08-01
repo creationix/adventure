@@ -40,3 +40,9 @@ body {
 .tileActive {
   background: rgba(255, 255, 255, 0.5) !important;
 }
+div.door-tall-closed, div.door-tall-open {
+  margin-top: -31px;
+}
+div.chest-lid {
+  margin-top: -10px;
+}

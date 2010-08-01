@@ -1,7 +1,7 @@
 var X = 0,
     Y = 0,
     socket,
-    TILE_WIDTH = 100,
+    TILE_WIDTH = 99,
     TILE_HEIGHT = 82,
     WIDTH,
     HEIGHT,
