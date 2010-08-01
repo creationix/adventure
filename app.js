@@ -1,56 +1,58 @@
+
 var Connect = require('connect'),
+    io = require('./socket.io'),
     worldDB = require('./world-db');
 
 var world = worldDB('world.db', 1024, 10000);
-var listeners = [];
+var emitter = new process.EventEmitter();
 
 // HTTP Logic
 module.exports = Connect.createServer(
   Connect.logger(),
-  Connect.bodyDecoder(),
-  Connect.router(function (app) {
-
-    app.post("/set/:x/:y/:value", function (req, res, next) {
-      var x = parseInt(req.params.x, 10);
-      var y = parseInt(req.params.y, 10);
-      var value = parseInt(req.params.value, 10);
-      world.set(x, y, value);
-      listeners = listeners.filter(function (listener) {
-        return listener(x, y, value);
-      });
-      res.writeHead(204, {});
-      res.end();
-    });
-
-    app.get("/range/:x/:y/:w/:h", function (req, res, next) {
-      var x = parseInt(req.params.x, 10);
-      var y = parseInt(req.params.y, 10);
-      var w = parseInt(req.params.w, 10);
-      var h = parseInt(req.params.h, 10);
-      var result = new Array(w);
-      for (var i = 0; i < w; i++) {
-        var column = result[i] = new Array(h);
-        for (var j = 0; j < h; j++) {
-          column[j] = world.get(x + i, y + j);
-        }
-      }
-      res.simpleBody(200, result);
-    });
-
-    app.get("/watch/:x/:y/:w/:h", function (req, res, next) {
-      var x1 = parseInt(req.params.x, 10);
-      var y1 = parseInt(req.params.y, 10);
-      var w = parseInt(req.params.w, 10);
-      var h = parseInt(req.params.h, 10);
-      var x2 = x1 + w;
-      var y2 = y1 + h;
-
-      listeners.push(function (x, y, value) {
-        if (!(x >= x1 && x < x2 && y >= y1 && y < y2)) return true;
-        res.simpleBody(200, { x: x, y: y, v: value });
-      });
-    });
-
-  }),
   Connect.staticProvider(__dirname + "/public")
 );
+
+var socket = io.listen(module.exports);
+
+socket.on('connection', function (client) {
+  var X = 0, Y = 0, W = 0, H = 0;
+  function watch(x,y,value) {
+    if (x >= X && x < X + W && y >= Y && y < Y + H) {
+      console.log("Sending to client");
+      client.send(JSON.stringify({x:x,y:y,v:value}));
+    }
+  }
+  emitter.on("change", watch);
+  // new client is here!
+  client.on('message', function (json) {
+    console.log(json);
+    try {
+      var message = JSON.parse(json);
+    } catch (err) {
+      console.error(err.stack);
+      return;
+    }
+    if (message.v) {
+      world.set(message.x, message.y, message.v);
+      emitter.emit('change', message.x, message.y, message.v);
+      return;
+    }
+    if (message.w && message.h) {
+      X = message.x;
+      Y = message.y;
+      W = message.w;
+      H = message.h;
+      console.log("Sending initial page");
+      for (var x = X, x2 = X + W; x < x2; x++) {
+        for (var y = Y, y2 = Y + H; y < y2; y++) {
+          client.send(JSON.stringify({x:x,y:y,v:world.get(x,y)}));
+        }
+      }
+    }
+  });
+  client.on('disconnect', function () {
+    emitter.removeListener('change', watch);
+  });
+});
+
+
