@@ -8,6 +8,7 @@ var X = 0,
     current = 0;
 
 onhashchange = loadMap;
+
   
 
 
@@ -68,7 +69,7 @@ window.onload = function () {
   mainDiv.addEventListener('click', onClick);
   mainDiv.addEventListener('keypress', onKeypress);
 
-  socket = new io.Socket('localhost');
+  socket = new io.Socket(null));
   socket.connect();
   socket.on('message', onMessage);
   socket.on('connect', loadMap);
