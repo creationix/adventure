@@ -1,4 +1,3 @@
 module.exports = {
-  port: 1234,
-  user: "nobody"
+  port: 1234
 }

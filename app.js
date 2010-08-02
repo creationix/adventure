@@ -47,14 +47,14 @@ socket.on('connection', function (client) {
       Y = message.y;
       W = message.w;
       H = message.h;
+      var missing = message.m;
       var bulk = {};
-      for (var x = X, x2 = X + W; x < x2; x++) {
+      Object.keys(message.m).forEach(function (x) {
         var column = bulk[x] = {};
-
-        for (var y = Y, y2 = Y + H; y < y2; y++) {
+        message.m[x].forEach(function (y) {
           column[y] = world.get(x, y);
-        }
-      }
+        });
+      });
       client.send(JSON.stringify(bulk));
 
     }
