@@ -49,14 +49,18 @@ socket.on('connection', function (client) {
       H = message.h;
       var missing = message.m;
       var bulk = {};
+      var count = 0;
       Object.keys(message.m).forEach(function (x) {
         var column = bulk[x] = {};
         message.m[x].forEach(function (y) {
           column[y] = world.get(x, y);
+          count++;
         });
       });
-      client.send(JSON.stringify(bulk));
-
+      if (count) {
+        client.send(JSON.stringify(bulk));
+        console.log("Send %d updates to client", count);
+      }
     }
   });
   client.on('disconnect', function () {

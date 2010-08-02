@@ -82,7 +82,12 @@ Object.forEach = function forEach(obj, callback, thisObject) {
 };
 
 
+var TWIDTH, THEIGHT;
 function generateTiles() {
+  if (TWIDTH == WIDTH && THEIGHT == HEIGHT) return;
+  TWIDTH = WIDTH;
+  THEIGHT = HEIGHT;
+
   mapDiv.innerHTML = "";
   tiles = {};
   for (var y = 0; y < HEIGHT; y++) {
@@ -118,21 +123,24 @@ function generatePalette() {
   paletteDiv.innerHTML = html.join("\n");
 }
 
+var SX, SY, SWIDTH, SHEIGHT;
+
 function loadMap() {
-  oldWIDTH = WIDTH;
-  oldHEIGHT = HEIGHT;
   WIDTH = Math.floor(window.innerWidth / TILE_WIDTH + 0.5);
   HEIGHT = Math.floor(window.innerHeight / TILE_HEIGHT + 2.5);
 
-  if (oldWIDTH != WIDTH || oldHEIGHT != HEIGHT) {
-    generateTiles();
-  }
-
-  trimMap(X - 20, Y - 20, WIDTH + 40, HEIGHT + 40);
-  var missing = {};
   scrollMap();
-  for (var x = X, x2 = X + WIDTH; x < x2; x++) {
-    for (var y = Y, y2 = Y + HEIGHT; y < y2; y++) {
+
+  if (SX == X && SY == Y && SWITDH == WIDTH && SHEIGHT == HEIGHT) return;
+  SX = X; SY = Y; SWIDTH = WIDTH; SHEIGHT = HEIGHT;
+
+  generateTiles();
+
+  trimMap(X, Y, WIDTH, HEIGHT);
+  var missing = {};
+  var x2 = X + WIDTH, y2 = Y + HEIGHT;
+  for (var x = X; x < x2; x++) {
+    for (var y = Y; y < y2; y++) {
       var value = getMap(x, y);
       set(x, y, value);
       if (value === undefined) {
@@ -169,7 +177,7 @@ var mapDiv, paletteDiv, mainDiv, mapFrame;
 
 window.onload = function () {
   setTimeout(onLoad);
-}
+};
 
 function onLoad() {
 
@@ -183,8 +191,12 @@ function onLoad() {
   mainDiv.addEventListener('click', onClick, false);
   document.addEventListener('keydown', onKeydown, true);
   document.addEventListener('keyup', onKeyup, true);
+  mapDiv.addEventListener('touchstart', function (e) {
+    console.log(Object.keys(e));
+    console.log(e);
+  }, false);
 
-  socket = new io.Socket(null);
+  socket = new io.Socket(null);//, {transports: ['xhr-polling']});
   socket.connect();
   socket.on('message', onMessage);
   socket.on('connect', function () {
