@@ -8,7 +8,7 @@ var emitter = new process.EventEmitter();
 
 // HTTP Logic
 module.exports = Connect.createServer(
-  Connect.logger(),
+  Connect.logger({format: ':method :url :status HTTP:http-version :remote-addr (:response-time ms)'}),
   Connect.conditionalGet(),
   Connect.cache(),
   Connect.gzip(),
