@@ -121,8 +121,8 @@ function generatePalette() {
 function loadMap() {
   oldWIDTH = WIDTH;
   oldHEIGHT = HEIGHT;
-  WIDTH = Math.floor(document.width / TILE_WIDTH) + 2;
-  HEIGHT = Math.floor(document.height / TILE_HEIGHT) + 3;
+  WIDTH = Math.floor(window.innerWidth / TILE_WIDTH) + 2;
+  HEIGHT = Math.floor(window.innerHeight / TILE_HEIGHT) + 3;
 
   if (oldWIDTH != WIDTH || oldHEIGHT != HEIGHT) {
     generateTiles();
@@ -168,6 +168,10 @@ function get(id) {
 var mapDiv, paletteDiv, mainDiv, mapFrame;
 
 window.onload = function () {
+  setTimeout(onLoad);
+}
+
+function onLoad() {
 
   mapDiv = get("map");
   mapFrame = get("mapFrame");
@@ -176,9 +180,9 @@ window.onload = function () {
 
   generatePalette();
 
-  mainDiv.addEventListener('click', onClick);
-  mainDiv.addEventListener('keydown', onKeydown, true);
-  mainDiv.addEventListener('keyup', onKeyup, true);
+  mainDiv.addEventListener('click', onClick, false);
+  document.addEventListener('keydown', onKeydown, true);
+  document.addEventListener('keyup', onKeyup, true);
 
   socket = new io.Socket(null);
   socket.connect();
@@ -251,6 +255,8 @@ function onKeydown(e) {
   }
   if (suppress) {
     e.stopPropagation();
+    e.preventDefault();
+
   }
 }
 
@@ -265,6 +271,7 @@ function onKeyup(e) {
   }
   if (suppress) {
     e.stopPropagation();
+    e.preventDefault();
   }
 }
 
