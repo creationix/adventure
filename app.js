@@ -18,7 +18,38 @@ module.exports = Connect.createServer(
 var socket = io.listen(module.exports);
 
 socket.on('connection', function (client) {
+  // Lets us "know" what data the client wants
+  var map = {};
+
+  function setMap(x, y, value) {
+    (map[x] || (map[x] = {}))[y] = value;
+  }
+
+  function getMap(x, y) {
+    return (map[x] && map[x][y]);
+  }
+
+  function trimMap() {
+    var x2 = X + W;
+    var y2 = Y + H;
+    // Trim old columns
+    Object.keys(map).forEach(function (ix) {
+      if (ix < X || ix >= x2) {
+        delete map[ix];
+        return;
+      }
+      // Trim old rows
+      var column = map[ix];
+      Object.keys(column).forEach(function (iy) {
+        if (iy < Y || iy >= y2) {
+          delete column[iy];
+        }
+      });
+    });
+  }
+
   var X = 0, Y = 0, W = 0, H = 0;
+
   function watch(x,y,value) {
     if (x >= X && x < X + W && y >= Y && y < Y + H) {
       console.log("Sending to client");
@@ -29,7 +60,7 @@ socket.on('connection', function (client) {
     }
   }
   emitter.on("change", watch);
-  // new client is here!
+
   client.on('message', function (json) {
     console.log("Message received");
     try {
@@ -48,18 +79,24 @@ socket.on('connection', function (client) {
       Y = message.y;
       W = message.w;
       H = message.h;
-      var missing = message.m;
-      var bulk = {};
+
+      trimMap();
+      var updates = {};
       var count = 0;
-      Object.keys(message.m).forEach(function (x) {
-        var column = bulk[x] = {};
-        message.m[x].forEach(function (y) {
-          column[y] = world.get(x, y);
-          count++;
-        });
-      });
+      var x2 = X + W, y2 = Y + H;
+      for (var x = X; x < x2; x++) {
+        for (var y = Y; y < y2; y++) {
+          if (getMap(x, y) === undefined) {
+            count++;
+            var value = world.get(x, y);
+            setMap(x, y, value);
+            (updates[x] || (updates[x] = {}))[y] = value;
+          }
+        }
+      }
+
       if (count) {
-        client.send(JSON.stringify(bulk));
+        client.send(JSON.stringify(updates));
         console.log("Send %d updates to client", count);
       }
     }

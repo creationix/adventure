@@ -6,7 +6,7 @@ var X = 0,
     WIDTH,
     HEIGHT,
     tiles = {},
-    current = 0,
+    current = 0;
     map = {};
 
 function setMap(x, y, value) {
@@ -17,19 +17,19 @@ function getMap(x, y) {
   return (map[x] && map[x][y]);
 }
 
-function trimMap(x, y, w, h) {
-  var x2 = x + w;
-  var y2 = y + h;
+function trimMap() {
+  var x2 = X + WIDTH;
+  var y2 = Y + HEIGHT;
   // Trim old columns
   Object.keys(map).forEach(function (ix) {
-    if (ix < x || ix >= x2) {
+    if (ix < X || ix >= x2) {
       delete map[ix];
       return;
     }
     // Trim old rows
     var column = map[ix];
     Object.keys(column).forEach(function (iy) {
-      if (iy < y || iy >= y2) {
+      if (iy < Y || iy >= y2) {
         delete column[iy];
       }
     });
@@ -136,24 +136,19 @@ function loadMap() {
 
   generateTiles();
 
-  trimMap(X, Y, WIDTH, HEIGHT);
-  var missing = {};
   var x2 = X + WIDTH, y2 = Y + HEIGHT;
   for (var x = X; x < x2; x++) {
     for (var y = Y; y < y2; y++) {
-      var value = getMap(x, y);
-      set(x, y, value);
-      if (value === undefined) {
-        (missing[x] || (missing[x] = [])).push(y);
-      }
+      set(x, y, getMap(x, y));
     }
   }
+
+  trimMap();
   socket.send(JSON.stringify({
     x: X,
     y: Y,
     w: WIDTH,
-    h: HEIGHT,
-    m: missing
+    h: HEIGHT
   }));
 
 }
