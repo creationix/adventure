@@ -25,8 +25,11 @@ body {
 .tile {
   position: absolute;
   margin-top: -50px;
-  width: 100px;
-  height: 170px;
+  width: 101px;
+  height: 171px;
+  background-image: url(tiles.png);
+  background-repeat: no-repeat;
+  background-position: 101px 0;
 }
 .tileHandle {
   position: absolute;

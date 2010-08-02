@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="909"
+   height="855"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48pre1 r9509"
+   sodipodi:docname="tiles.svg"
+   inkscape:export-filename="/Users/tim/Desktop/adventure/public/tiles.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.9754386"
+     inkscape:cx="454.5"
+     inkscape:cy="416.6052"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:window-width="1488"
+     inkscape:window-height="982"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0">
+    <inkscape:grid
+       type="xygrid"
+       id="grid2985"
+       empspacing="5"
+       visible="true"
+       enabled="true"
+       snapvisiblegridlinesonly="true"
+       spacingx="101px"
+       spacingy="171px" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-197.36217)">
+    <image
+       y="368.36218"
+       x="101"
+       id="image3103"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Brown%20Block.png"
+       height="171"
+       width="101" />
+    <image
+       y="197.36217"
+       x="808"
+       id="image3168"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Character%20Boy.png"
+       height="171"
+       width="101" />
+    <image
+       y="539.36218"
+       x="808"
+       id="image3233"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Character%20Cat%20Girl.png"
+       height="171"
+       width="101" />
+    <image
+       y="710.36218"
+       x="808"
+       id="image3298"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Character%20Horn%20Girl.png"
+       height="171"
+       width="101" />
+    <image
+       y="368.36218"
+       x="808"
+       id="image3363"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Character%20Pink%20Girl.png"
+       height="171"
+       width="101" />
+    <image
+       y="881.36218"
+       x="808"
+       id="image3428"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Character%20Princess%20Girl.png"
+       height="171"
+       width="101" />
+    <image
+       y="881.36218"
+       x="707"
+       id="image3493"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Enemy%20Bug.png"
+       height="171"
+       width="101" />
+    <image
+       y="539.36218"
+       x="707"
+       id="image3558"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Gem%20Blue.png"
+       height="171"
+       width="101" />
+    <image
+       y="539.36218"
+       x="505"
+       id="image3623"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Gem%20Green.png"
+       height="171"
+       width="101" />
+    <image
+       y="539.36218"
+       x="606"
+       id="image3688"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Gem%20Orange.png"
+       height="171"
+       width="101" />
+    <image
+       y="368.36218"
+       x="606"
+       id="image3753"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Chest%20Closed.png"
+       height="171"
+       width="101" />
+    <image
+       y="368.36218"
+       x="0"
+       id="image3818"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Dirt%20Block.png"
+       height="171"
+       width="101" />
+    <image
+       y="881.36218"
+       x="303"
+       id="image3883"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Door%20Tall%20Closed.png"
+       height="171"
+       width="101" />
+    <image
+       y="710.36218"
+       x="707"
+       id="image3948"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Heart.png"
+       height="171"
+       width="101" />
+    <image
+       y="197.36212"
+       x="0"
+       id="image4013"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Grass%20Block.png"
+       height="171"
+       width="101" />
+    <image
+       y="710.36218"
+       x="505"
+       id="image4097"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Key.png"
+       height="171"
+       width="101" />
+    <image
+       y="539.36218"
+       x="101"
+       id="image4162"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Plain%20Block.png"
+       height="171"
+       width="101" />
+    <image
+       y="368.36218"
+       x="202"
+       id="image4227"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Ramp%20East.png"
+       height="171"
+       width="101" />
+    <image
+       y="539.36218"
+       x="202"
+       id="image4292"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Ramp%20North.png"
+       height="171"
+       width="101" />
+    <image
+       y="710.36218"
+       x="202"
+       id="image4395"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Ramp%20South.png"
+       height="171"
+       width="101" />
+    <image
+       y="197.36217"
+       x="202"
+       id="image4460"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Ramp%20West.png"
+       height="171"
+       width="101" />
+    <image
+       y="368.36218"
+       x="707"
+       id="image4527"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Rock.png"
+       height="171"
+       width="101" />
+    <image
+       y="197.36217"
+       x="404"
+       id="image4592"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Roof%20East.png"
+       height="171"
+       width="101" />
+    <image
+       y="710.36218"
+       x="404"
+       id="image4657"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Roof%20North.png"
+       height="171"
+       width="101" />
+    <image
+       y="368.36218"
+       x="404"
+       id="image4722"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Roof%20North%20East.png"
+       height="171"
+       width="101" />
+    <image
+       y="368.36218"
+       x="303"
+       id="image4787"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Roof%20North%20West.png"
+       height="171"
+       width="101" />
+    <image
+       y="710.36218"
+       x="303"
+       id="image4852"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Roof%20South.png"
+       height="171"
+       width="101" />
+    <image
+       y="539.36218"
+       x="404"
+       id="image4917"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Roof%20South%20East.png"
+       height="171"
+       width="101" />
+    <image
+       y="539.36218"
+       x="303"
+       id="image4982"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Roof%20South%20West.png"
+       height="171"
+       width="101" />
+    <image
+       y="197.36217"
+       x="303"
+       id="image5047"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Roof%20West.png"
+       height="171"
+       width="101" />
+    <image
+       y="710.36218"
+       x="606"
+       id="image5112"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Star.png"
+       height="171"
+       width="101" />
+    <image
+       y="710.36218"
+       x="0"
+       id="image5177"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Stone%20Block.png"
+       height="171"
+       width="101" />
+    <image
+       y="881.36218"
+       x="0"
+       id="image5242"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Stone%20Block%20Tall.png"
+       height="171"
+       width="101" />
+    <image
+       y="197.36217"
+       x="606"
+       id="image5307"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Tree%20Short.png"
+       height="171"
+       width="101" />
+    <image
+       y="197.36217"
+       x="505"
+       id="image5372"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Tree%20Tall.png"
+       height="171"
+       width="101" />
+    <image
+       y="197.36217"
+       x="707"
+       id="image5437"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Tree%20Ugly.png"
+       height="171"
+       width="101" />
+    <image
+       y="539.36218"
+       x="0"
+       id="image5502"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Water%20Block.png"
+       height="171"
+       width="101" />
+    <image
+       y="710.36218"
+       x="101"
+       id="image5567"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Wall%20Block.png"
+       height="171"
+       width="101" />
+    <image
+       y="881.36218"
+       x="101"
+       id="image5632"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Wall%20Block%20Tall.png"
+       height="171"
+       width="101" />
+    <image
+       y="881.36218"
+       x="202"
+       id="image5697"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Window%20Tall.png"
+       height="171"
+       width="101" />
+    <image
+       y="197.36217"
+       x="101"
+       id="image5762"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Wood%20Block.png"
+       height="171"
+       width="101" />
+    <image
+       y="881.36218"
+       x="606"
+       id="image5827"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/SpeechBubble.png"
+       height="171"
+       width="101" />
+    <image
+       y="881.36218"
+       x="505"
+       id="image5892"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Selector.png"
+       height="171"
+       width="101" />
+    <image
+       y="368.36218"
+       x="505"
+       id="image6022"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Chest%20Open.png"
+       height="171"
+       width="101" />
+    <image
+       y="881.36218"
+       x="404"
+       id="image6152"
+       xlink:href="file:///Users/tim/Desktop/adventure/public/tiles/Door%20Tall%20Open.png"
+       height="171"
+       width="101" />
+  </g>
+</svg>

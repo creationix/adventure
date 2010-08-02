@@ -31,6 +31,7 @@ socket.on('connection', function (client) {
   emitter.on("change", watch);
   // new client is here!
   client.on('message', function (json) {
+    console.log("Message received");
     try {
       var message = JSON.parse(json);
     } catch (err) {
