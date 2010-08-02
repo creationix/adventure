@@ -219,7 +219,7 @@ var wx = 0, wy = 0, last = new Date;
 
 setInterval(function () {
   var now = new Date;
-  var distance = Math.floor((now - last) / 2);
+  var distance = Math.floor((now - last));
   last = now;
   var my = (up ? -1 : 0) + (down ? 1 : 0);
   var mx = (left ? -1 : 0) + (right ? 1 : 0);

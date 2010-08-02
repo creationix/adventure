@@ -1,6 +1,6 @@
 
 var Connect = require('connect'),
-    io = require('./socket.io'),
+    io = require('./lib/socket.io'),
     worldDB = require('./world-db');
 
 var world = worldDB('world.db', 1024, 10000);
