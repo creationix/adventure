@@ -4,3 +4,6 @@
 [submodule "public/io"]
 	path = public/io
 	url = http://github.com/LearnBoost/Socket.IO.git
+[submodule "public/websocket-js"]
+	path = public/websocket-js
+	url = http://github.com/gimite/web-socket-js.git

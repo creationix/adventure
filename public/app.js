@@ -121,18 +121,18 @@ function generatePalette() {
 function loadMap() {
   oldWIDTH = WIDTH;
   oldHEIGHT = HEIGHT;
-  WIDTH = Math.floor(window.innerWidth / TILE_WIDTH) + 2;
-  HEIGHT = Math.floor(window.innerHeight / TILE_HEIGHT) + 3;
+  WIDTH = Math.floor(window.innerWidth / TILE_WIDTH + 0.5);
+  HEIGHT = Math.floor(window.innerHeight / TILE_HEIGHT + 2.5);
 
   if (oldWIDTH != WIDTH || oldHEIGHT != HEIGHT) {
     generateTiles();
   }
 
-  trimMap(X, Y, WIDTH, HEIGHT);
+  trimMap(X - 20, Y - 20, WIDTH + 40, HEIGHT + 40);
   var missing = {};
   scrollMap();
   for (var x = X, x2 = X + WIDTH; x < x2; x++) {
-    for (var y = Y, y2 = Y + WIDTH; y < y2; y++) {
+    for (var y = Y, y2 = Y + HEIGHT; y < y2; y++) {
       var value = getMap(x, y);
       set(x, y, value);
       if (value === undefined) {
@@ -156,8 +156,8 @@ function scrollMap() {
   var oy = wy % TILE_HEIGHT;
   if (oy < 0) oy += TILE_HEIGHT;
 
-  mapFrame.scrollLeft = ox + TILE_WIDTH;
-  mapFrame.scrollTop = oy + TILE_HEIGHT;
+  mapFrame.scrollLeft = ox;
+  mapFrame.scrollTop = oy + TILE_HEIGHT / 2;
 }
 
 
