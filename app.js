@@ -62,7 +62,6 @@ socket.on('connection', function (client) {
   emitter.on("change", watch);
 
   client.on('message', function (json) {
-    console.log("Message received");
     try {
       var message = JSON.parse(json);
     } catch (err) {
@@ -99,7 +98,7 @@ socket.on('connection', function (client) {
 
       if (count) {
         client.send(JSON.stringify(updates));
-        console.log("Send %d updates to client", count);
+        console.log("Send %d updates to client %s:%s", count, client.request.socket.remoteAddress, client.request.socket.remotePort);
       }
     }
   });
