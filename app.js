@@ -87,10 +87,12 @@ socket.on('connection', function (client) {
       for (var x = X; x < x2; x++) {
         for (var y = Y; y < y2; y++) {
           if (getMap(x, y) === undefined) {
-            count++;
             var value = world.get(x, y);
-            setMap(x, y, value);
-            (updates[x] || (updates[x] = {}))[y] = value;
+            if (value) {
+              count++;
+              setMap(x, y, value);
+              (updates[x] || (updates[x] = {}))[y] = value;
+            }
           }
         }
       }
