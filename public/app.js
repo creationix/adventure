@@ -3,6 +3,7 @@ var X = 0,
     socket,
     TILE_WIDTH = 99,
     TILE_HEIGHT = 82,
+    BUFFER = 4,
     WIDTH,
     HEIGHT,
     tiles = {},
@@ -18,19 +19,18 @@ function getMap(x, y) {
 }
 
 function trimMap() {
-
-  var x2 = X + WIDTH;
-  var y2 = Y + HEIGHT;
+  var x2 = X + WIDTH + BUFFER;
+  var y2 = Y + HEIGHT + BUFFER;
   // Trim old columns
   Object.keys(map).forEach(function (ix) {
-    if (ix < X || ix >= x2) {
+    if (ix < X - BUFFER || ix >= x2) {
       delete map[ix];
       return;
     }
     // Trim old rows
     var column = map[ix];
     Object.keys(column).forEach(function (iy) {
-      if (iy < Y || iy >= y2) {
+      if (iy < Y - BUFFER || iy >= y2) {
         delete column[iy];
       }
     });
@@ -146,10 +146,10 @@ function loadMap() {
 
   trimMap();
   socket.send(JSON.stringify({
-    x: X,
-    y: Y,
-    w: WIDTH,
-    h: HEIGHT
+    x: X - BUFFER,
+    y: Y - BUFFER,
+    w: WIDTH + BUFFER * 2,
+    h: HEIGHT + BUFFER * 2
   }));
 
 }
@@ -306,11 +306,11 @@ function save(x, y, value) {
 
 
 function set(x, y, value) {
+  setMap(x, y, value);
   var column = tiles[x - X];
   if (!column) return;
   var tile = column[y - Y];
   if (!tile) return;
   tile.className = "tile " + imageClasses[value];
-  setMap(x, y, value);
 }
 
