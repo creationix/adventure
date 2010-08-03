@@ -91,7 +91,7 @@ socket.on('connection', function (client) {
             if (value) {
               count++;
               setMap(x, y, value);
-              (updates[x] || (updates[x] = {}))[y] = value;
+              (updates[x] || (updates[x] = {}))[y] = parseInt(value, 10);
             }
           }
         }
