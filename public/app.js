@@ -18,6 +18,7 @@ function getMap(x, y) {
 }
 
 function trimMap() {
+
   var x2 = X + WIDTH;
   var y2 = Y + HEIGHT;
   // Trim old columns
@@ -131,7 +132,7 @@ function loadMap() {
 
   scrollMap();
 
-  if (SX == X && SY == Y && SWITDH == WIDTH && SHEIGHT == HEIGHT) return;
+  if (SX == X && SY == Y && SWIDTH == WIDTH && SHEIGHT == HEIGHT) return;
   SX = X; SY = Y; SWIDTH = WIDTH; SHEIGHT = HEIGHT;
 
   generateTiles();
