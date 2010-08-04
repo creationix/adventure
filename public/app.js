@@ -6,16 +6,20 @@ var X = 0,
     BUFFER = 4,
     WIDTH,
     HEIGHT,
-    tiles = {},
+    tileDivs = {},
     current = 0;
     map = {};
 
-function setMap(x, y, value) {
-  (map[x] || (map[x] = {}))[y] = value;
+function setMap(x, y, z, value) {
+  var column = map[x];
+  if (!column) { column = map[x] = {}; }
+  var cell = column[y];
+  if (!cell) { cell = column[y] = {}; }
+  cell[z] = value;
 }
 
-function getMap(x, y) {
-  return (map[x] && map[x][y]);
+function getMap(x, y, z) {
+  return (map[x] && map[x][y] && map[x][y][z]);
 }
 
 function trimMap() {
@@ -82,6 +86,13 @@ Object.forEach = function forEach(obj, callback, thisObject) {
   }
 };
 
+function makeDiv(x, y) {
+  var div = document.createElement('div');
+  div.style.top = y + "px";
+  div.style.left = x + "px";
+  return div;
+}
+
 
 var TWIDTH, THEIGHT;
 function generateTiles() {
@@ -90,20 +101,24 @@ function generateTiles() {
   THEIGHT = HEIGHT;
 
   mapDiv.innerHTML = "";
-  tiles = {};
+  tileDivs = {};
   for (var y = 0; y < HEIGHT; y++) {
     for (var x = 0; x < WIDTH; x++) {
-      var div = (tiles[x] || (tiles[x] = {}))[y] = document.createElement('div');
-      div.style.top =  (y * TILE_HEIGHT) + "px";
-      div.style.left =  (x * TILE_WIDTH) + "px";
-      mapDiv.appendChild(div);
+      if (!tileDivs[x]) { tileDivs[x] = {}; }
+      var column = tileDivs[x][y] = [
+        makeDiv(x * TILE_WIDTH, y * TILE_HEIGHT),
+        makeDiv(x * TILE_WIDTH, y * TILE_HEIGHT - 40),
+        makeDiv(x * TILE_WIDTH, y * TILE_HEIGHT - 80),
+        makeDiv(x * TILE_WIDTH, y * TILE_HEIGHT - 120)
+      ];
+      column.forEach(function (div) {
+        mapDiv.appendChild(div);
+      });
     }
   }
   for (y = 0; y < HEIGHT; y++) {
     for (x = 0; x < WIDTH; x++) {
-      var div = document.createElement('div');
-      div.style.top =  (y * TILE_HEIGHT) + "px";
-      div.style.left =  (x * TILE_WIDTH) + "px";
+      var div = makeDiv(x * TILE_WIDTH, y * TILE_HEIGHT - 40);
       div.className = "tileHandle";
       div.x = x;
       div.y = y;
@@ -118,8 +133,7 @@ function generatePalette() {
     html.push('<div style="top: ' + (i * 120 + 20) + 'px; left: 20px" class="tile ' + name + '"></div>');
   });
   imageClasses.forEach(function (name, i) {
-    var className = (i == 0) ? "tileHandle tileActive" : "tileHandle";
-    html.push('<div id="item-' + i + '" style="top: ' + (i * 120 + 20) + 'px; left: 20px" class="' + className + '"></div>');
+    html.push('<div id="item-' + i + '" style="top: ' + (i * 120 + 20) + 'px; left: 20px" class="tileHandle"></div>');
   });
   paletteDiv.innerHTML = html.join("\n");
 }
@@ -140,7 +154,9 @@ function loadMap() {
   var x2 = X + WIDTH, y2 = Y + HEIGHT;
   for (var x = X; x < x2; x++) {
     for (var y = Y; y < y2; y++) {
-      set(x, y, getMap(x, y));
+      for (var z = 0; z < 3; z++) {
+        update(x, y, z);
+      }
     }
   }
 
@@ -187,10 +203,8 @@ function onLoad() {
   mainDiv.addEventListener('click', onClick, false);
   document.addEventListener('keydown', onKeydown, true);
   document.addEventListener('keyup', onKeyup, true);
-  mapDiv.addEventListener('touchstart', function (e) {
-    console.log(Object.keys(e));
-    console.log(e);
-  }, false);
+  window.addEventListener('resize', onResize, true);
+
 
   socket = new io.Socket(null);//, {transports: ['xhr-polling']});
   socket.connect();
@@ -206,6 +220,12 @@ function onLoad() {
 
 };
 
+function onResize(evt) {
+
+  loadMap();
+
+}
+
 function onMessage(message) {
   try {
     message = JSON.parse(message);
@@ -215,9 +235,13 @@ function onMessage(message) {
   }
   Object.forEach(message, function (column, x) {
     x = parseInt(x, 10);
-    Object.forEach(column, function (value, y) {
+    Object.forEach(column, function (values, y) {
       y = parseInt(y, 10);
-      set(x, y, value);
+      Object.forEach(values, function (value, z) {
+        z = parseInt(z, 10);
+        setMap(x, y, z, value);
+        update(x, y, z);
+      });
     });
   });
 }
@@ -289,28 +313,33 @@ function onClick(e) {
 
   if (id.indexOf('item-') === 0) {
     current = id.substr(id.indexOf('-') + 1);
-    document.getElementsByClassName("tileActive")[0].className = "tileHandle";
+    var divs = document.getElementsByClassName("tileActive");
+    for (var i = 0, l = i.length; i < l; i++) {
+      divs[i].className = "tileHandle";
+    }
     e.target.className += " tileActive";
     return;
   }
   if (e.target.x !== undefined) {
-    save(e.target.x + X, e.target.y + Y, current);
+    console.log(e);
+    var z = (e.shiftKey ? 2 : 0) + (e.altKey ? 0 : 1);
+    save(e.target.x + X, e.target.y + Y, z, current);
   }
 }
 
-function save(x, y, value) {
-  x = parseInt(x, 10);
-  y = parseInt(y, 10);
-  socket.send(JSON.stringify({x:x,y:y,v:value}));
+function save(x, y, z, value) {
+  socket.send(JSON.stringify({x:x,y:y,z:z,v:value}));
 }
 
 
-function set(x, y, value) {
-  setMap(x, y, value);
-  var column = tiles[x - X];
-  if (!column) return;
-  var tile = column[y - Y];
+function update(x, y, z) {
+  var column = tileDivs[x - X];
+  if (!column) { return; }
+  var tiles = column[y - Y];
+  if (!tiles) { return; }
+  var tile = tiles[z];
   if (!tile) return;
-  tile.className = "tile " + imageClasses[value];
+  var value = getMap(x, y, z);
+  tile.className = "tile " + imageClasses[(getMap(x, y, z))];
 }
 
