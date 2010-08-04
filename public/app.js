@@ -1,3 +1,33 @@
+// Implement Object.keys for browsers that don't have it
+if (!Object.keys) {
+  Object.keys = function (obj) {
+    var keys = [];
+    for (var key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        keys.push(key);
+      }
+    }
+    return keys;
+  };
+}
+
+// forEach for objects, very handy
+Object.forEach = function forEach(obj, callback, thisObject) {
+  var keys = Object.keys(obj);
+  var length = keys.length;
+  for (var i = 0; i < length; i++) {
+    var key = keys[i];
+    callback.call(thisObject, obj[key], key, obj);
+  }
+};
+
+
+var imageClassesInv = {};
+Object.keys(imageClasses).forEach(function (i) {
+  imageClassesInv[imageClasses[i]] = parseInt(i, 10);
+});
+
+
 var X = 0,
     Y = 0,
     socket,
@@ -63,28 +93,6 @@ onhashchange = function () {
 };
 
 
-// Implement Object.keys for browsers that don't have it
-if (!Object.keys) {
-  Object.keys = function (obj) {
-    var keys = [];
-    for (var key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        keys.push(key);
-      }
-    }
-    return keys;
-  };
-}
-
-// forEach for objects, very handy
-Object.forEach = function forEach(obj, callback, thisObject) {
-  var keys = Object.keys(obj);
-  var length = keys.length;
-  for (var i = 0; i < length; i++) {
-    var key = keys[i];
-    callback.call(thisObject, obj[key], key, obj);
-  }
-};
 
 function makeDiv(x, y) {
   var div = document.createElement('div');
@@ -133,7 +141,7 @@ function generatePalette() {
     html.push('<div style="top: ' + (i * 120 + 20) + 'px; left: 20px" class="tile ' + name + '"></div>');
   });
   imageClasses.forEach(function (name, i) {
-    html.push('<div id="item-' + i + '" style="top: ' + (i * 120 + 20) + 'px; left: 20px" class="tileHandle"></div>');
+    html.push('<div id="' + imageClasses[i] + '" style="top: ' + (i * 120 + 20) + 'px; left: 20px" class="tileHandle"></div>');
   });
   paletteDiv.innerHTML = html.join("\n");
 }
@@ -310,9 +318,8 @@ function onKeyup(e) {
 function onClick(e) {
   if (e.target.className.substr("tileHandle") < 0) return;
   var id = e.target.id;
-
-  if (id.indexOf('item-') === 0) {
-    current = id.substr(id.indexOf('-') + 1);
+  if (id) {
+    current = id;
     var divs = document.getElementsByClassName("tileActive");
     for (var i = 0, l = divs.length; i < l; i++) {
       divs[i].className = "tileHandle";
@@ -320,14 +327,17 @@ function onClick(e) {
     e.target.className += " tileActive";
     return;
   }
-  if (e.target.x !== undefined) {
+  if (e.target.x !== undefined && current) {
     var z = (e.shiftKey ? 2 : 0) + (e.altKey ? 0 : 1);
     save(e.target.x + X, e.target.y + Y, z, current);
+    if (z < 4 && current.indexOf('-tall') > 0) {
+      save(e.target.x + X, e.target.y + Y, z + 1, null);
+    }
   }
 }
 
 function save(x, y, z, value) {
-  socket.send(JSON.stringify({x:x,y:y,z:z,v:value}));
+  socket.send(JSON.stringify({x:x,y:y,z:z,v:imageClassesInv[value]}));
 }
 
 
