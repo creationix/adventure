@@ -56,7 +56,7 @@ socket.on('connection', function (client) {
       var message = {};
       message[x] = {};
       message[x][y] = {};
-      message[x][y][z] = value;
+      message[x][y][z] = parseInt(value, 10);
       client.send(JSON.stringify(message));
     }
   }
@@ -90,9 +90,10 @@ socket.on('connection', function (client) {
             var cell = (updates[x] || (updates[x] = {}))[y] = [];
             setMap(x, y, true);
             for (var z = 0; z < 4; z++) {
-              var value = cell[z] = world.get(x, y, z);
+              var value = world.get(x, y, z);
               if (value) {
                 count++;
+                cell[z] = parseInt(value, 10);
               }
             }
           }
