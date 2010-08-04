@@ -50,12 +50,13 @@ socket.on('connection', function (client) {
 
   var X = 0, Y = 0, W = 0, H = 0;
 
-  function watch(x,y,value) {
+  function watch(x,y,z,value) {
     if (x >= X && x < X + W && y >= Y && y < Y + H) {
       console.log("Sending to client");
       var message = {};
       message[x] = {};
-      message[x][y] = value;
+      message[x][y] = {};
+      message[x][y][z] = value;
       client.send(JSON.stringify(message));
     }
   }
@@ -69,8 +70,8 @@ socket.on('connection', function (client) {
       return;
     }
     if (message.v) {
-      world.set(message.x, message.y, message.v);
-      emitter.emit('change', message.x, message.y, message.v);
+      world.set(message.x, message.y, message.z, message.v);
+      emitter.emit('change', message.x, message.y, message.z, message.v);
       return;
     }
     if (message.w && message.h) {
@@ -86,11 +87,13 @@ socket.on('connection', function (client) {
       for (var x = X; x < x2; x++) {
         for (var y = Y; y < y2; y++) {
           if (getMap(x, y) === undefined) {
-            var value = world.get(x, y);
-            if (value) {
-              count++;
-              setMap(x, y, value);
-              (updates[x] || (updates[x] = {}))[y] = parseInt(value, 10);
+            var cell = (updates[x] || (updates[x] = {}))[y] = [];
+            setMap(x, y, true);
+            for (var z = 0; z < 4; z++) {
+              var value = cell[z] = world.get(x, y, z);
+              if (value) {
+                count++;
+              }
             }
           }
         }

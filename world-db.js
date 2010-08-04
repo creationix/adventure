@@ -52,17 +52,21 @@ function worldDB(filename, tileSize, saveInterval) {
           if (err) { callback(err); return; }
           Object.keys(meta.p).forEach(function (x) {
             var indexColumn = meta.p[x];
-            var column = tiles[x] = [];
+            var column = tiles[x] = {};
             Object.keys(indexColumn).forEach(function (y) {
-              counter++;
-              var tile = column[y] = Object.create(Tile);
-              fsRead(fd, indexColumn[y] + offset, tileSize * tileSize, function (err, buffer) {
-                if (err) { callback(err); return; }
-                tile.buffer = buffer;
-                counter--;
-                if (counter === 0) {
-                  callback(null, meta, tiles);
-                }
+              var indexCell = indexColumn[y];
+              var cell = column[y] = {};
+              Object.keys(indexCell).forEach(function (z) {
+                counter++;
+                var tile = cell[z] = Object.create(Tile);
+                fsRead(fd, indexCell[z] + offset, tileSize * tileSize, function (err, buffer) {
+                  if (err) { callback(err); return; }
+                  tile.buffer = buffer;
+                  counter--;
+                  if (counter === 0) {
+                    callback(null, meta, tiles);
+                  }
+                });
               });
             });
           });
@@ -132,26 +136,31 @@ function worldDB(filename, tileSize, saveInterval) {
 
   // Helper to load the tile for a particular coordinate
   // Creates the tile if it doesn't exist and requested.
-  function getTile(x, y, autoCreate) {
+  function getTile(x, y, z, autoCreate) {
     var tx = Math.floor(x / tileSize),
         ty = Math.floor(y / tileSize),
         column = tiles[tx];
     if (autoCreate && !column) {
       column = tiles[tx] = {};
     }
-    var tile = column && column[ty];
+    var cell = column && column[ty];
+    if (autoCreate && !cell) {
+      cell = column[ty] = {};
+    }
+    var tile = cell && cell[z];
     if (autoCreate && !tile) {
-      tile = column[ty] = Object.create(Tile);
+      tile = cell[z] = Object.create(Tile);
       tile.initialize(tileSize);
     }
     return tile;
   }
 
   // Get an object from a given x,y in the world
-  function get(x, y) {
+  function get(x, y, z) {
     x = parseInt(x, 10);
     y = parseInt(y, 10);
-    var tile = getTile(x, y);
+    z = parseInt(z, 10);
+    var tile = getTile(x, y, z);
     x = x % tileSize;
     if (x < 0) x += tileSize;
     y = y % tileSize;
@@ -160,9 +169,9 @@ function worldDB(filename, tileSize, saveInterval) {
   }
 
   // Set an object to a given x,y in the world
-  function set(x, y, obj) {
+  function set(x, y, z, obj) {
 
-    var tile = getTile(x, y, true);
+    var tile = getTile(x, y, z, true);
     var index = items.indexOf(obj);
     if (index < 0) {
       index = items.push(obj) - 1;
@@ -179,8 +188,8 @@ function worldDB(filename, tileSize, saveInterval) {
       tile.set(x, y, index);
       if (!shutdown) {
         dirty = true;
+        checkSave();
       }
-      checkSave();
     }
     return ;
   }
@@ -196,12 +205,16 @@ function worldDB(filename, tileSize, saveInterval) {
       var indexColumn = index[x] = {};
       var column = tiles[x];
       Object.keys(column).forEach(function (y) {
-        var item = column[y];
-        var clone = new Buffer(item.buffer.length);
-        item.buffer.copy(clone);
-        buffers.push(clone);
-        indexColumn[y] = position;
-        position += clone.length;
+        var cell = column[y];
+        var indexCell = indexColumn[y] = {};
+        Object.keys(cell).forEach(function (z) {
+          var item = cell[z];
+          var clone = new Buffer(item.buffer.length);
+          item.buffer.copy(clone);
+          buffers.push(clone);
+          indexCell[z] = position;
+          position += clone.length;
+        });
       });
     });
     return {
@@ -247,11 +260,6 @@ function worldDB(filename, tileSize, saveInterval) {
     save(function () {
       console.error(new Date + " - Database Saved");
       if (shutdown) {
-        if (dirty) {
-          lock = false;
-          checkSave();
-          return;
-        }
         process.exit();
       }
       if (!dirty) {
@@ -269,7 +277,7 @@ function worldDB(filename, tileSize, saveInterval) {
   function safeShutdown() {
     process.removeListener("SIGINT", safeShutdown);
     process.removeListener("SIGTERM", safeShutdown);
-    console.error("SIGNAL DETECTED - saving data...");
+    if (!dirty) process.exit();
     if (timeout) {
       clearTimeout(timeout);
     }
