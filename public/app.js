@@ -115,9 +115,9 @@ function generateTiles() {
       if (!tileDivs[x]) { tileDivs[x] = {}; }
       var column = tileDivs[x][y] = [
         makeDiv(x * TILE_WIDTH, y * TILE_HEIGHT),
-        makeDiv(x * TILE_WIDTH, y * TILE_HEIGHT - 40),
-        makeDiv(x * TILE_WIDTH, y * TILE_HEIGHT - 80),
-        makeDiv(x * TILE_WIDTH, y * TILE_HEIGHT - 120)
+        makeDiv(x * TILE_WIDTH, y * TILE_HEIGHT - 41),
+        makeDiv(x * TILE_WIDTH, y * TILE_HEIGHT - 82),
+        makeDiv(x * TILE_WIDTH, y * TILE_HEIGHT - 123)
       ];
       column.forEach(function (div) {
         mapDiv.appendChild(div);
@@ -126,7 +126,7 @@ function generateTiles() {
   }
   for (y = 0; y < HEIGHT; y++) {
     for (x = 0; x < WIDTH; x++) {
-      var div = makeDiv(x * TILE_WIDTH, y * TILE_HEIGHT - 40);
+      var div = makeDiv(x * TILE_WIDTH, y * TILE_HEIGHT - 41);
       div.className = "tileHandle";
       div.x = x;
       div.y = y;
@@ -318,13 +318,15 @@ function onKeyup(e) {
 function onClick(e) {
   if (e.target.className.substr("tileHandle") < 0) return;
   var id = e.target.id;
-  if (id) {
+  if (id && e.target.className.indexOf('tileHandle') >= 0) {
     current = id;
     var divs = document.getElementsByClassName("tileActive");
     for (var i = 0, l = divs.length; i < l; i++) {
       divs[i].className = "tileHandle";
     }
     e.target.className += " tileActive";
+    e.stopPropagation();
+    e.preventDefault();
     return;
   }
   if (e.target.x !== undefined && current) {
@@ -333,6 +335,8 @@ function onClick(e) {
     if (z < 4 && current.indexOf('-tall') > 0) {
       save(e.target.x + X, e.target.y + Y, z + 1, null);
     }
+    e.stopPropagation();
+    e.preventDefault();
   }
 }
 
