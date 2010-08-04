@@ -75,7 +75,7 @@ socket.on('connection', function (client) {
       console.error(err.stack);
       return;
     }
-    if (message.v) {
+    if (message.v !== undefined) {
       var value = imageClasses[message.v];
       world.set(message.x, message.y, message.z, value);
       emitter.emit('change', message.x, message.y, message.z, value);
