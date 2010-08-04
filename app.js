@@ -1,7 +1,7 @@
 
 var Connect = require('connect'),
     io = require('./lib/socket.io'),
-    worldDB = require('./world-db'),
+    worldDB = require('world-db'),
     imageClasses = require('./public/tiles'),
     imageClassesInv = {};
 
