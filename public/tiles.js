@@ -1,5 +1,5 @@
 var imageClasses =
-[ ""
+[ null
 , "brown-block"
 , "character-boy"
 , "character-cat-girl"
@@ -7,7 +7,6 @@ var imageClasses =
 , "character-pink-girl"
 , "character-princess-girl"
 , "chest-closed"
-, "chest-lid"
 , "chest-open"
 , "dirt-block"
 , "door-tall-closed"
@@ -47,3 +46,7 @@ var imageClasses =
 , "window-tall"
 , "wood-block"
 ];
+
+if (module) {
+  module.exports = imageClasses;
+}

@@ -1,7 +1,13 @@
 
 var Connect = require('connect'),
     io = require('./lib/socket.io'),
-    worldDB = require('./world-db');
+    worldDB = require('./world-db'),
+    imageClasses = require('./public/tiles'),
+    imageClassesInv = {};
+
+Object.keys(imageClasses).forEach(function (i) {
+  imageClassesInv[imageClasses[i]] = parseInt(i, 10);
+})
 
 var world = worldDB('world.db', 1024, 10000);
 var emitter = new process.EventEmitter();
@@ -56,7 +62,7 @@ socket.on('connection', function (client) {
       var message = {};
       message[x] = {};
       message[x][y] = {};
-      message[x][y][z] = parseInt(value, 10);
+      message[x][y][z] = imageClassesInv[value];
       client.send(JSON.stringify(message));
     }
   }
@@ -70,8 +76,9 @@ socket.on('connection', function (client) {
       return;
     }
     if (message.v) {
-      world.set(message.x, message.y, message.z, message.v);
-      emitter.emit('change', message.x, message.y, message.z, message.v);
+      var value = imageClasses[message.v];
+      world.set(message.x, message.y, message.z, value);
+      emitter.emit('change', message.x, message.y, message.z, value);
       return;
     }
     if (message.w && message.h) {
@@ -90,8 +97,8 @@ socket.on('connection', function (client) {
             var cell = (updates[x] || (updates[x] = {}))[y] = [];
             setMap(x, y, true);
             for (var z = 0; z < 4; z++) {
-              var value = world.get(x, y, z);
-              if (value) {
+              var value = imageClassesInv[world.get(x, y, z)];
+              if (value > 0) {
                 count++;
                 cell[z] = parseInt(value, 10);
               }
