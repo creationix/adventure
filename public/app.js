@@ -154,7 +154,7 @@ function loadMap() {
   var x2 = X + WIDTH, y2 = Y + HEIGHT;
   for (var x = X; x < x2; x++) {
     for (var y = Y; y < y2; y++) {
-      for (var z = 0; z < 3; z++) {
+      for (var z = 0; z < 4; z++) {
         update(x, y, z);
       }
     }
@@ -314,14 +314,13 @@ function onClick(e) {
   if (id.indexOf('item-') === 0) {
     current = id.substr(id.indexOf('-') + 1);
     var divs = document.getElementsByClassName("tileActive");
-    for (var i = 0, l = i.length; i < l; i++) {
+    for (var i = 0, l = divs.length; i < l; i++) {
       divs[i].className = "tileHandle";
     }
     e.target.className += " tileActive";
     return;
   }
   if (e.target.x !== undefined) {
-    console.log(e);
     var z = (e.shiftKey ? 2 : 0) + (e.altKey ? 0 : 1);
     save(e.target.x + X, e.target.y + Y, z, current);
   }
@@ -338,7 +337,6 @@ function update(x, y, z) {
   var tiles = column[y - Y];
   if (!tiles) { return; }
   var tile = tiles[z];
-  if (!tile) return;
   var value = getMap(x, y, z);
   tile.className = "tile " + imageClasses[(getMap(x, y, z))];
 }
