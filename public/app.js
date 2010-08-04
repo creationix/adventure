@@ -75,12 +75,18 @@ var ignoreHash = false;
 onhashchange = function () {
   if (ignoreHash) { return; }
   var hash = window.location.hash.replace(/^#/, '');
-  if (!hash) {
-    window.location.hash = "#" + X + "/" + Y;
-  }
   var parts = hash.split("/");
   X = parseInt(parts[0], 10);
   Y = parseInt(parts[1], 10);
+  if (X != X || Y != Y) {
+    if (X != X) X = 0;
+    if (Y != Y) Y = 0;
+    ignoreHash = true;
+    window.location.hash = hash = "#" + X + "/" + Y;
+    setTimeout(function () {
+      ignoreHash = false;
+    });
+  }
   var tx = X * TILE_WIDTH;
   var ty = Y * TILE_HEIGHT;
   if (wx < tx - TILE_WIDTH || wx > tx + TILE_WIDTH) {
