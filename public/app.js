@@ -186,26 +186,23 @@ window.onload = function () {
 function drag(element, dragfn, clickfn) {
   var dragX, dragY, click, timeout;
 
-  element.addEventListener('touchstart', function (e) {
-    if (e.touches.length != 1) return;
-    var touch = e.touches[0];
-    dragX = touch.pageX;
-    dragY = touch.pageY;
+  function start(e) {
+    dragX = e.pageX;
+    dragY = e.pageY;
     click = e;
     e.stopPropagation();
     e.preventDefault();
-  }, false);
-  element.addEventListener('touchmove', function (e) {
-    if (e.touches.length != 1) return;
-    var touch = e.touches[0];
+  }
+  function move(e) {
+    if (!(dragX && dragY)) return;
     click = false;
-    dragfn(dragX - touch.pageX, dragY - touch.pageY);
-    dragX = touch.pageX;
-    dragY = touch.pageY;
+    dragfn(dragX - e.pageX, dragY - e.pageY);
+    dragX = e.pageX;
+    dragY = e.pageY;
     e.stopPropagation();
     e.preventDefault();
-  }, false);
-  element.addEventListener('touchend', function (e) {
+  }
+  function end(e) {
     if (click && clickfn) {
       clickfn(click);
     }
@@ -213,7 +210,28 @@ function drag(element, dragfn, clickfn) {
     dragY = null;
     e.stopPropagation();
     e.preventDefault();
+  }
+
+  element.addEventListener('mousedown', start, false);
+  element.addEventListener('mousemove', move, false);
+  element.addEventListener('mouseup', end, false);
+  element.addEventListener('touchstart', function (e) {
+    if (e.touches.length == 1) {
+      var touch = e.touches[0];
+      touch.stopPropagation = function () { e.stopPropagation(); };
+      touch.preventDefault = function () { e.preventDefault(); };
+      start(touch);
+    }
   }, false);
+  element.addEventListener('touchmove', function (e) {
+    if (e.touches.length == 1) {
+      var touch = e.touches[0];
+      touch.stopPropagation = function () { e.stopPropagation(); };
+      touch.preventDefault = function () { e.preventDefault(); };
+      move(touch);
+    }
+  }, false);
+  element.addEventListener('touchend', end, false);
 }
 
 function onLoad() {
@@ -225,7 +243,6 @@ function onLoad() {
 
   generatePalette();
 
-  mainDiv.addEventListener('click', onClick, false);
   document.addEventListener('keydown', onKeydown, true);
   document.addEventListener('keyup', onKeyup, true);
   window.addEventListener('resize', onResize, true);
