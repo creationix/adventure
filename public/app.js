@@ -1,32 +1,8 @@
-// Implement Object.keys for browsers that don't have it
-if (!Object.keys) {
-  Object.keys = function (obj) {
-    var keys = [];
-    for (var key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        keys.push(key);
-      }
-    }
-    return keys;
-  };
-}
-
-// forEach for objects, very handy
-Object.forEach = function forEach(obj, callback, thisObject) {
-  var keys = Object.keys(obj);
-  var length = keys.length;
-  for (var i = 0; i < length; i++) {
-    var key = keys[i];
-    callback.call(thisObject, obj[key], key, obj);
-  }
-};
-
 
 var imageClassesInv = {};
-Object.keys(imageClasses).forEach(function (i) {
-  imageClassesInv[imageClasses[i]] = parseInt(i, 10);
+forEach(imageClasses, function (name, i) {
+  imageClassesInv[name] = parseInt(i, 10);
 });
-
 
 var X = 0,
     Y = 0,
@@ -90,12 +66,12 @@ onhashchange = function () {
   var tx = X * TILE_WIDTH;
   var ty = Y * TILE_HEIGHT;
   if (wx < tx - TILE_WIDTH || wx > tx + TILE_WIDTH) {
-    wx = tx;
+    moveTo(tx, wy);
   }
   if (wy < ty - TILE_HEIGHT || wy > ty + TILE_HEIGHT) {
-    wy = ty;
+    moveTo(wx, ty);
   }
-  loadMap();
+  // moveTo(tx, ty);
 };
 
 
@@ -156,7 +132,7 @@ var SX, SY, SWIDTH, SHEIGHT;
 
 function loadMap() {
   WIDTH = Math.floor(window.innerWidth / TILE_WIDTH + 0.5);
-  HEIGHT = Math.floor(window.innerHeight / TILE_HEIGHT + 2.5);
+  HEIGHT = Math.floor(window.innerHeight / TILE_HEIGHT + 3.5);
 
   scrollMap();
 
@@ -184,6 +160,8 @@ function loadMap() {
 
 }
 
+
+
 function scrollMap() {
   var ox = wx % TILE_WIDTH;
   if (ox < 0) ox += TILE_WIDTH;
@@ -205,6 +183,39 @@ window.onload = function () {
   setTimeout(onLoad);
 };
 
+function drag(element, dragfn, clickfn) {
+  var dragX, dragY, click, timeout;
+
+  element.addEventListener('touchstart', function (e) {
+    if (e.touches.length != 1) return;
+    var touch = e.touches[0];
+    dragX = touch.pageX;
+    dragY = touch.pageY;
+    click = e;
+    e.stopPropagation();
+    e.preventDefault();
+  }, false);
+  element.addEventListener('touchmove', function (e) {
+    if (e.touches.length != 1) return;
+    var touch = e.touches[0];
+    click = false;
+    dragfn(dragX - touch.pageX, dragY - touch.pageY);
+    dragX = touch.pageX;
+    dragY = touch.pageY;
+    e.stopPropagation();
+    e.preventDefault();
+  }, false);
+  element.addEventListener('touchend', function (e) {
+    if (click && clickfn) {
+      clickfn(click);
+    }
+    dragX = null;
+    dragY = null;
+    e.stopPropagation();
+    e.preventDefault();
+  }, false);
+}
+
 function onLoad() {
 
   mapDiv = get("map");
@@ -218,6 +229,12 @@ function onLoad() {
   document.addEventListener('keydown', onKeydown, true);
   document.addEventListener('keyup', onKeyup, true);
   window.addEventListener('resize', onResize, true);
+  drag(mapDiv, function onDrag(dx, dy) {
+    moveTo(wx + dx, wy + dy);
+  }, onClick);
+  drag(paletteDiv, function onDrag(dx, dy) {
+    paletteFrame.scrollTop += dy;
+  }, onClick);
 
 
   socket = new io.Socket(null);//, {transports: ['xhr-polling']});
@@ -247,11 +264,11 @@ function onMessage(message) {
     console.error(message);
     return;
   }
-  Object.forEach(message, function (column, x) {
+  forEach(message, function (column, x) {
     x = parseInt(x, 10);
-    Object.forEach(column, function (values, y) {
+    forEach(column, function (values, y) {
       y = parseInt(y, 10);
-      Object.forEach(values, function (value, z) {
+      forEach(values, function (value, z) {
         z = parseInt(z, 10);
         setMap(x, y, z, value);
         update(x, y, z);
@@ -267,15 +284,11 @@ var up = false,
 
 var wx = 0, wy = 0, last = new Date;
 
-setInterval(function () {
-  var now = new Date;
-  var distance = Math.floor((now - last));
-  last = now;
-  var my = (up ? -1 : 0) + (down ? 1 : 0);
-  var mx = (left ? -1 : 0) + (right ? 1 : 0);
-  if (!(mx || my)) return;
-  wx += mx * distance;
-  wy += my * distance;
+function moveTo(x, y) {
+  if (x==wx && y == wy) return;
+  wx = x;
+  wy = y;
+
   X = Math.floor(wx / TILE_WIDTH);
   Y = Math.floor(wy / TILE_HEIGHT);
 
@@ -287,6 +300,17 @@ setInterval(function () {
 
 
   loadMap();
+
+}
+
+setInterval(function () {
+  var now = new Date;
+  var distance = Math.floor((now - last));
+  last = now;
+  var my = (up ? -1 : 0) + (down ? 1 : 0);
+  var mx = (left ? -1 : 0) + (right ? 1 : 0);
+  if (!(mx || my)) return;
+  moveTo(wx + mx * distance, wy + my * distance);
 }, 10);
 
 
