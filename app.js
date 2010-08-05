@@ -27,6 +27,10 @@ socket.on('connection', function (client) {
   // Lets us "know" what data the client wants
   var map = {};
 
+  setInterval(function () {
+    client.send('{}');
+  }, 2000);
+
   function setMap(x, y, value) {
     (map[x] || (map[x] = {}))[y] = value;
   }
