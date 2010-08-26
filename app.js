@@ -9,7 +9,7 @@ Object.keys(imageClasses).forEach(function (i) {
   imageClassesInv[imageClasses[i]] = parseInt(i, 10);
 })
 
-var world = worldDB('~/world.db', 1024, 10000);
+var world = worldDB('/home/node/world.db', 1024, 10000);
 var emitter = new process.EventEmitter();
 
 // HTTP Logic
