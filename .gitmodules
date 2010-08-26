@@ -7,3 +7,12 @@
 [submodule "public/websocket-js"]
 	path = public/websocket-js
 	url = http://github.com/gimite/web-socket-js.git
+[submodule "lib/step"]
+	path = lib/step
+	url = http://github.com/creationix/step.git
+[submodule "lib/world-db"]
+	path = lib/world-db
+	url = http://github.com/creationix/world-db.git
+[submodule "lib/connect"]
+	path = lib/connect
+	url = http://github.com/senchalabs/connect.git

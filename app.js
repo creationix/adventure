@@ -1,6 +1,8 @@
+require.paths.push('./lib', './lib/connect/lib', './lib/world-db/lib', './lib/step/lib');
+
 
 var Connect = require('connect'),
-    io = require('./lib/socket.io'),
+    io = require('socket.io'),
     worldDB = require('world-db'),
     imageClasses = require('./public/tiles'),
     imageClassesInv = {};
