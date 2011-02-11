@@ -7,7 +7,7 @@ The communication is using websockets with fallbacks (powered by socket.io).  I 
 ## How to Play
 
 Clone the code and start a local server.
-Then scroll around the massive world. You can either drag the screen or use the keyboard arrows. There are no limits other than the ram of my box at Joyent.  Since each tile takes only one byte (yes 8-bits) of ram to store, it's pretty efficient.
+Then scroll around the massive world. You can either drag the screen or use the keyboard arrows. There are no limits other than the ram of the server.  Since each tile takes only one byte (yes 8-bits) of ram to store, it's pretty efficient.
 
 Once you've chosen a place as home start drawing away.  There are four layers in the map.
 
