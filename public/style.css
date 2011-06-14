@@ -17,6 +17,9 @@
   overflow: hidden;
   background-color: #aaa;
 }
+#map {
+  position: absolute;
+}
 body {
   border: 0;
   margin: 0;

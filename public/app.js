@@ -167,9 +167,10 @@ function scrollMap() {
   if (ox < 0) ox += TILE_WIDTH;
   var oy = wy % TILE_HEIGHT;
   if (oy < 0) oy += TILE_HEIGHT;
-
-  mapFrame.scrollLeft = ox;
-  mapFrame.scrollTop = oy + TILE_HEIGHT / 2;
+  oy += TILE_HEIGHT / 2;
+  mapDiv.style.webkitTransform = "translate3d(" + -ox + "px," + -oy + "px,0)";
+  // mapFrame.scrollLeft = ox;
+  // mapFrame.scrollTop = oy;
 }
 
 
@@ -253,8 +254,13 @@ function onLoad() {
     paletteFrame.scrollTop += dy;
   }, onClick);
 
-
-  socket = new io.Socket(null);//, {transports: ['xhr-polling']});
+  if (typeof PalmSystem === "undefined") {
+    socket = new io.Socket(null);
+  } else {
+    socket = new io.Socket("10.0.1.6");
+    PalmSystem.stageReady();
+    PalmSystem.enableFullScreenMode(true);
+  }
   socket.connect();
   socket.on('message', onMessage);
   socket.on('connect', function () {
